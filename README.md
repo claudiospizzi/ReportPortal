@@ -5,7 +5,7 @@
 
 # ReportPortal PowerShell Module
 
-Report Portal PowerShell Module.
+PowerShell module to interact with the [Report Portal].
 
 
 ## Introduction
@@ -72,3 +72,5 @@ Studio Code and ensure that the PowerShell extension is installed.
 [Pester]: https://www.powershellgallery.com/packages/Pester
 [PSScriptAnalyzer]: https://www.powershellgallery.com/packages/PSScriptAnalyzer
 [psake]: https://www.powershellgallery.com/packages/psake
+
+[Report Portal]: http://reportportal.io/
