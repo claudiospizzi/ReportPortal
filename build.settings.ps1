@@ -2,7 +2,6 @@
 Properties {
 
     $ModuleNames    = 'ReportPortal'
-    $ModuleMerge    = $true
 
     $GalleryEnabled = $true
     $GalleryKey     = Get-VaultSecureString -TargetName 'PowerShell Gallery Key (claudiospizzi)'
