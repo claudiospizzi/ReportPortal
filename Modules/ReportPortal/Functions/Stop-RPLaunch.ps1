@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-        Finish an existing report portal launch.
+        Finish a previously started report portal launch.
 
     .DESCRIPTION
         Call the FinishLaunchAsync() method on the service object to finish the
