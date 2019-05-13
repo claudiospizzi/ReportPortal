@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-        Connect to the report portal service.
+        Connect to the report portal service. It will return the service object.
 
     .DESCRIPTION
         .
