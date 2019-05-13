@@ -1,5 +1,4 @@
 {
-    "files.trimTrailingWhitespace": true,
     "files.exclude": {
         "bin/**": true,
         "tst/**": true,
