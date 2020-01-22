@@ -3,7 +3,7 @@
     RootModule = 'ReportPortal.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.1.1'
+    ModuleVersion = '0.1.2'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -46,7 +46,7 @@
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @(
-        'Assemblies/ReportPortal.Client-2.1.7.0.dll'
+        'Assemblies/ReportPortal.Client-2.1.15.1.dll'
     )
 
     # Script files (.ps1) that are run in the caller's environment prior to importing this module.
@@ -67,7 +67,7 @@
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport = @(
-        'Connect-RPService'
+        'Connect-RPServer'
         'Get-RPLaunch'
         'Start-RPLaunch'
         'Stop-RPLaunch'
