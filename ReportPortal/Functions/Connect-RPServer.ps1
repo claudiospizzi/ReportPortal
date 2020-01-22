@@ -9,7 +9,7 @@
 function Connect-RPServer
 {
     [CmdletBinding()]
-    [OutputType([ReportPortal.Client.Service])]
+    [Alias('Connect-RPService')]
     param
     (
         # Url to the report portal server.
@@ -24,12 +24,23 @@ function Connect-RPServer
         # Unique identifier.
         [Parameter(Mandatory = $true)]
         [System.String]
-        $UserId
+        $UserId,
+
+        # Return the service object.
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $PassThru
     )
 
     # Ensure the url is valid, by using the scheme and authority and append the
     # api query path
-    $Url = '{0}/api/v1' + $Url.GetLeftPart('Authority')
+    $Url = [System.Uri] ('{0}/api/v1' -f $Url.GetLeftPart('Authority'))
 
-    [ReportPortal.Client.Service]::new($uri, $ProjectName, $UserId)
+    # Connect to the report portal service
+    $Script:RPService = [ReportPortal.Client.Service]::new($Url, $ProjectName, $UserId)
+
+    if ($PassThru.IsPresent)
+    {
+        Write-Output $Script:RPService
+    }
 }
