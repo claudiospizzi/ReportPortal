@@ -59,7 +59,7 @@ function Start-RPTestItem
     try
     {
         $model = [ReportPortal.Client.Requests.StartTestItemRequest]::new()
-        $model.LaunchId    = $Launch.Id
+        $model.LaunchId    = $Launch.Uuid
         $model.Name        = $Name
         $model.Type        = $Type
         $model.Description = $Description
