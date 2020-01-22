@@ -13,7 +13,7 @@ function Start-RPLaunch
     param
     (
         # The report portal service.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ReportPortal.Client.Service]
         $Service,
 
@@ -37,6 +37,8 @@ function Start-RPLaunch
         [System.String[]]
         $Tags
     )
+
+    $Service = Test-RPService -Service $Service
 
     try
     {

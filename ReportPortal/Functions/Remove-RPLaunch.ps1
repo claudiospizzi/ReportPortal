@@ -13,7 +13,7 @@ function Remove-RPLaunch
     param
     (
         # The report portal service.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ReportPortal.Client.Service]
         $Service,
 
@@ -32,6 +32,8 @@ function Remove-RPLaunch
         [switch]
         $Force
     )
+
+    $Service = Test-RPService -Service $Service
 
     try
     {

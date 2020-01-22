@@ -14,7 +14,7 @@ function Start-RPTestItem
     param
     (
         # The report portal service.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ReportPortal.Client.Service]
         $Service,
 
@@ -55,6 +55,8 @@ function Start-RPTestItem
         [System.String[]]
         $Tags
     )
+
+    $Service = Test-RPService -Service $Service
 
     try
     {

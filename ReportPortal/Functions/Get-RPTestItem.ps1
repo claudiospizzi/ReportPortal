@@ -14,7 +14,7 @@ function Get-RPTestItem
     param
     (
         # The report portal service.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ReportPortal.Client.Service]
         $Service,
 
@@ -29,6 +29,8 @@ function Get-RPTestItem
         [System.String]
         $Name
     )
+
+    $Service = Test-RPService -Service $Service
 
     try
     {

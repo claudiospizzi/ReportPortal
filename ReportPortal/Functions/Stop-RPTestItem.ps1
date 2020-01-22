@@ -14,7 +14,7 @@ function Stop-RPTestItem
     param
     (
         # The report portal service.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ReportPortal.Client.Service]
         $Service,
 
@@ -48,6 +48,8 @@ function Stop-RPTestItem
         [switch]
         $PassThru
     )
+
+    $Service = Test-RPService -Service $Service
 
     try
     {

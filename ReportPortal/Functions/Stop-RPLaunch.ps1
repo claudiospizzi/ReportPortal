@@ -14,14 +14,14 @@ function Stop-RPLaunch
     param
     (
         # The report portal service.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ReportPortal.Client.Service]
         $Service,
 
         # The launch id to finish.
-        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Uuid')]
         [System.String]
-        $Id,
+        $Uuid,
 
         # The launch to finish.
         [Parameter(Mandatory = $true, ParameterSetName = 'Launch')]
@@ -44,6 +44,8 @@ function Stop-RPLaunch
         $PassThru
     )
 
+    $Service = Test-RPService -Service $Service
+
     try
     {
         $model = [ReportPortal.Client.Requests.FinishLaunchRequest]::new()
@@ -51,7 +53,7 @@ function Stop-RPLaunch
 
         if ($PSCmdlet.ParameterSetName -eq 'Launch')
         {
-            $Id = $Launch.Id
+            $Uuid = $Launch.Uuid
         }
 
         if ($PSCmdlet.ShouldProcess($Id, 'Finish Launch'))
