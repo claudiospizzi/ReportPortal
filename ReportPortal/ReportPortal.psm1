@@ -21,3 +21,8 @@ Split-Path -Path $PSCommandPath |
     Get-ChildItem -Filter 'Functions' -Directory |
         Get-ChildItem -Include '*.ps1' -File -Recurse |
             ForEach-Object { . $_.FullName }
+
+## Module Configuration
+
+# Report Portal service object cache
+$Script:RPService = $null
