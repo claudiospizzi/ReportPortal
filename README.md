@@ -1,7 +1,6 @@
 [![PowerShell Gallery - ReportPortal](https://img.shields.io/badge/PowerShell_Gallery-ReportPortal-0072C6.svg)](https://www.powershellgallery.com/packages/ReportPortal)
 [![GitHub - Release](https://img.shields.io/github/release/claudiospizzi/ReportPortal.svg)](https://github.com/claudiospizzi/ReportPortal/releases)
 [![AppVeyor - master](https://img.shields.io/appveyor/ci/claudiospizzi/ReportPortal/master.svg)](https://ci.appveyor.com/project/claudiospizzi/ReportPortal/branch/master)
-[![AppVeyor - dev](https://img.shields.io/appveyor/ci/claudiospizzi/ReportPortal/dev.svg)](https://ci.appveyor.com/project/claudiospizzi/ReportPortal/branch/dev)
 
 # ReportPortal PowerShell Module
 
@@ -18,7 +17,7 @@ handling. But it is recommended to put the *Stop-* cmdlet into the finally
 block, so that the started launches and items always will be stopped at the end.
 
 ```powershell
-$service = Connect-RPService -ComputerName 'reportportal' -Port 8080 -ProjectName 'My Project' -UserId '1a9e5a43-3f84-4752-ba50-b8aa9e3f67fd'
+$service = Connect-RPServer -ComputerName 'reportportal' -Port 8080 -ProjectName 'My Project' -UserId '1a9e5a43-3f84-4752-ba50-b8aa9e3f67fd'
 
 try
 {
@@ -59,7 +58,7 @@ finally
 
 ## Features
 
-* **Connect-RPService**  
+* **Connect-RPServer**  
   Connect to the report portal service. It will return the service object.
 
 * **Get-RPLaunch**  
