@@ -37,12 +37,12 @@ function Start-RPTestItem
         [System.String]
         $Name,
 
-        # Launch start time.
+        # Test item start time.
         [Parameter(Mandatory = $false)]
         [System.DateTime]
         $StartTime = (Get-Date),
 
-        # The launch attributes.
+        # The test item attributes.
         [Parameter(Mandatory = $false)]
         [System.String[]]
         $Attribute

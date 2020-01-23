@@ -62,6 +62,9 @@ function Stop-RPLaunch
     {
         Invoke-RPRequest -Session $Session -Method 'Put' -Path "launch/$action" -Body $launchStopRequest -ErrorAction 'Stop' | Out-Null
 
-        Get-RPLaunch -Session $Session -Id $id
+        if ($PassThru.IsPresent)
+        {
+            Get-RPLaunch -Session $Session -Id $id
+        }
     }
 }

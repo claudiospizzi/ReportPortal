@@ -73,10 +73,8 @@
         'Remove-RPLaunch'
         'Get-RPTestItem'
         'Start-RPTestItem'
-        # 'Remove-RPLaunch'
-        # 'Get-RPTestItem'
-        # 'Start-RPTestItem'
-        # 'Stop-RPTestItem'
+        'Stop-RPTestItem'
+        'Add-RPLog'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
