@@ -3,60 +3,50 @@
         Start a new report portal launch.
 
     .DESCRIPTION
-        Call the StartLaunchAsync() method on the service object to start a new
-        launch in the report portal. The method will be invoked synchronously.
+        This command will create a new empty report portal launch. The start
+        time by default is now, but can be overritten. The attributes must be
+        specified by a colon seperator, e.g. 'Key:Value'.
 #>
 function Start-RPLaunch
 {
     [CmdletBinding(SupportsShouldProcess = $true)]
-    [OutputType([ReportPortal.Client.Models.Launch])]
     param
     (
         # The report portal service.
         [Parameter(Mandatory = $false)]
-        [ReportPortal.Client.Service]
-        $Service,
+        [PSTypeName('ReportPortal.Session')]
+        $Session,
 
         # Launch name.
         [Parameter(Mandatory = $true)]
         [System.String]
         $Name,
 
-        # Launch description.
-        [Parameter(Mandatory = $false)]
-        [System.String]
-        $Description,
-
         # Launch start time.
         [Parameter(Mandatory = $false)]
         [System.DateTime]
         $StartTime = (Get-Date),
 
-        # Test item tags.
+        # The launch attributes.
         [Parameter(Mandatory = $false)]
         [System.String[]]
-        $Tags
+        $Attribute
     )
 
-    $Service = Test-RPService -Service $Service
+    $Session = Test-RPSession -Session $Session
 
-    try
-    {
-        $model = [ReportPortal.Client.Requests.StartLaunchRequest]::new()
-        $model.Name        = $Name
-        $model.Description = $Description
-        $model.StartTime   = $StartTime.ToUniversalTime()
-        $model.Tags        = $Tags
+    Write-Verbose ('Start a report portal launch with name {0}' -f $Name)
 
-        if ($PSCmdlet.ShouldProcess($null, 'Start Launch'))
-        {
-            $launch = $Service.StartLaunchAsync($model).GetAwaiter().GetResult()
-
-            Get-RPLaunch -Service $Service -Id $launch.Id
-        }
+    $launchStartRequest = [PSCustomObject] @{
+        name        = $Name
+        startTime   = ConvertTo-ReportPortalDateTime -DateTime $StartTime
+        attributes  = @(ConvertTo-ReportPortalAttribute -Attribute $Attribute)
     }
-    catch
+
+    if ($PSCmdlet.ShouldProcess($Name, 'Start Launch'))
     {
-        ConvertFrom-RPException -ErrorRecord $_ | Write-Error
+        $launchStartResult = Invoke-RPRequest -Session $Session -Method 'Post' -Path 'launch' -Body $launchStartRequest -ErrorAction 'Stop'
+
+        Get-RPLaunch -Session $Session -Id $launchStartResult.Id
     }
 }

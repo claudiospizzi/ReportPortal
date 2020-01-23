@@ -3,36 +3,28 @@
         Start a new report portal test item.
 
     .DESCRIPTION
-        Call the StartTestItemAsync() method on the service object to start a
-        new test item in the report portal. The method will be invoked
-        synchronously.
+        ..
 #>
 function Start-RPTestItem
 {
     [CmdletBinding(SupportsShouldProcess = $true)]
-    [OutputType([ReportPortal.Client.Models.TestItem])]
     param
     (
         # The report portal service.
         [Parameter(Mandatory = $false)]
-        [ReportPortal.Client.Service]
-        $Service,
+        [PSTypeName('ReportPortal.Session')]
+        $Session,
 
         # The report portal launch.
         [Parameter(Mandatory = $true)]
-        [ReportPortal.Client.Models.Launch]
+        [PSTypeName('ReportPortal.Launch')]
         $Launch,
 
-        # The parent test item, can be null.
+        # The parent test item, can be null for root elements.
         [Parameter(Mandatory = $false)]
         [AllowNull()]
-        [ReportPortal.Client.Models.TestItem]
+        [PSTypeName('ReportPortal.TestItem')]
         $Parent,
-
-        # Test item name.
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $Name,
 
         # Test item type.
         [Parameter(Mandatory = $true)]
@@ -40,50 +32,139 @@ function Start-RPTestItem
         [System.String]
         $Type,
 
-        # Test item description.
-        [Parameter(Mandatory = $false)]
+        # Test item name.
+        [Parameter(Mandatory = $true)]
         [System.String]
-        $Description,
+        $Name,
 
-        # Test item start time.
+        # Launch start time.
         [Parameter(Mandatory = $false)]
         [System.DateTime]
         $StartTime = (Get-Date),
 
-        # Test item tags.
+        # The launch attributes.
         [Parameter(Mandatory = $false)]
         [System.String[]]
-        $Tags
+        $Attribute
     )
 
-    $Service = Test-RPService -Service $Service
+    $Session = Test-RPSession -Session $Session
 
-    try
-    {
-        $model = [ReportPortal.Client.Requests.StartTestItemRequest]::new()
-        $model.LaunchId    = $Launch.Uuid
-        $model.Name        = $Name
-        $model.Type        = $Type
-        $model.Description = $Description
-        $model.StartTime   = $StartTime.ToUniversalTime()
-        $model.Tags        = $Tags
+    Write-Verbose ('Start a report portal test item with name {0} and type {1}' -f $Name, $Type.ToLower())
 
-        if ($PSCmdlet.ShouldProcess($null, 'Start Test Item'))
-        {
-            if ($null -eq $Parent)
-            {
-                $testItem = $Service.StartTestItemAsync($model).GetAwaiter().GetResult()
-            }
-            else
-            {
-                $testItem = $Service.StartTestItemAsync($Parent.Id, $model).GetAwaiter().GetResult()
-            }
-
-            Get-RPTestItem -Service $Service -Id $testItem.Id
-        }
+    $testItemStartRequest = [PSCustomObject] @{
+        name        = $Name
+        launchUuid  = $Launch.Guid
+        type        = $Type.ToUpper()
+        startTime   = ConvertTo-ReportPortalDateTime -DateTime $StartTime
+        attributes  = @(ConvertTo-ReportPortalAttribute -Attribute $Attribute)
     }
-    catch
+
+    $path = 'item'
+    if ($PSBoundParameters.ContainsKey('Parent'))
     {
-        ConvertFrom-RPException -ErrorRecord $_ | Write-Error
+        $path = 'item/{0}' -f $Parent.Guid
     }
+
+    if ($PSCmdlet.ShouldProcess($Name, 'Start Test Item'))
+    {
+        $testItemStartResult = Invoke-RPRequest -Session $Session -Method 'Post' -Path $path -Body $testItemStartRequest -ErrorAction 'Stop'
+
+        Get-RPTestItem -Session $Session -Id $testItemStartResult.id
+    }
+
+
+
+#     "codeRef": "string",
+#     "hasStats": true,
+#     "parameters": [
+#       {
+#         "key": "string",
+#         "value": "string"
+#       }
+#     ],
+#     "retry": true,
+#     "testCaseHash": 0,
+#     "testCaseId": "string",
+#     "uniqueId": "string"
+#   }
+
+
+
+
+    #     # Test item description.
+    #     [Parameter(Mandatory = $false)]
+    #     [System.String]
+    #     $Description,
+
+    #     # Test item start time.
+    #     [Parameter(Mandatory = $false)]
+    #     [System.DateTime]
+    #     $StartTime = (Get-Date),
+
+    #     # Test item tags.
+    #     [Parameter(Mandatory = $false)]
+    #     [System.String[]]
+    #     $Tags
+    # )
+
+    # try
+    # {
+    #     $model = [ReportPortal.Client.Requests.StartTestItemRequest]::new()
+    #     $model.LaunchId    = $Launch.Uuid
+    #     $model.Name        = $Name
+    #     $model.Type        = $Type
+    #     $model.Description = $Description
+    #     $model.StartTime   = $StartTime.ToUniversalTime()
+    #     $model.Tags        = $Tags
+
+    #     if ($PSCmdlet.ShouldProcess($null, 'Start Test Item'))
+    #     {
+    #         if ($null -eq $Parent)
+    #         {
+    #             $testItem = $Service.StartTestItemAsync($model).GetAwaiter().GetResult()
+    #         }
+    #         else
+    #         {
+    #             $testItem = $Service.StartTestItemAsync($Parent.Id, $model).GetAwaiter().GetResult()
+    #         }
+
+    #         Get-RPTestItem -Service $Service -Id $testItem.Id
+    #     }
+    # }
+    # catch
+    # {
+    #     ConvertFrom-RPException -ErrorRecord $_ | Write-Error
+    # }
 }
+
+
+
+
+#   {
+#     "attributes": [
+#       {
+#         "key": "string",
+#         "system": true,
+#         "value": "string"
+#       }
+#     ],
+#     "codeRef": "string",
+#     "description": "string",
+#     "hasStats": true,
+#     "launchUuid": "string",
+#     "name": "string",
+#     "parameters": [
+#       {
+#         "key": "string",
+#         "value": "string"
+#       }
+#     ],
+#     "retry": true,
+#     "startTime": "2020-01-22T23:20:35.401Z",
+#     "testCaseHash": 0,
+#     "testCaseId": "string",
+#     "type": "SUITE",
+#     "uniqueId": "string"
+#   }
+#   P

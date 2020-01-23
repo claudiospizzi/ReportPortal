@@ -1,46 +1,94 @@
 <#
     .SYNOPSIS
-        Connect to the report portal service. It will return the service object.
+        Connect to the report portal server. It will optionally return the
+        session object.
 
     .DESCRIPTION
-        Use the ReportPortal.Client library to connect to the report portal
-        services.
+        Connect to the report portal server using the REST API. It stores the
+        session within the module context and optionally returns the session
+        object.
+        The authentication is performed with OAuth and the provided username and
+        password. The access token is then used to get the api token, wich is
+        longer lasting.
+
+    .EXAMPLE
+        PS C:\> Connect-RPServer -Url 'https://reportportal.contoso.com' -Credential 'user' -ProjectName 'demo'
+        Connect to the Contoso report portal server and the demo project.
 #>
 function Connect-RPServer
 {
     [CmdletBinding()]
-    [Alias('Connect-RPService')]
     param
     (
         # Url to the report portal server.
+        [Parameter(Mandatory = $true)]
         [System.Uri]
         $Url,
+
+        # The report portal user credentials.
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.PSCredential]
+        $Credential,
 
         # Project name.
         [Parameter(Mandatory = $true)]
         [System.String]
         $ProjectName,
 
-        # Unique identifier.
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $UserId,
-
-        # Return the service object.
+        # Return the session object.
         [Parameter(Mandatory = $false)]
-        [switch]
+        [Switch]
         $PassThru
     )
 
-    # Ensure the url is valid, by using the scheme and authority and append the
-    # api query path
-    $Url = [System.Uri] ('{0}/api/v1' -f $Url.GetLeftPart('Authority'))
+    Write-Verbose ('Connect to the report portal server {0}#{1}' -f $Url.GetLeftPart('Authority'), $ProjectName)
 
-    # Connect to the report portal service
-    $Script:RPService = [ReportPortal.Client.Service]::new($Url, $ProjectName, $UserId)
+    # Using OAuth to request the access token
+    $uiTokenRequest = @{
+        Method          = 'Post'
+        Uri             = '{0}/uat/sso/oauth/token' -f $Url.GetLeftPart('Authority')
+        ContentType     = 'application/x-www-form-urlencoded'
+        Headers         = @{ Authorization = 'Basic {0}' -f ([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(('ui:uiman')))) }
+        Body            = 'grant_type=password&username={0}&password={1}' -f $Credential.UserName, $Credential.GetNetworkCredential().Password
+        UseBasicParsing = $true
+        Verbose         = $false
+        ErrorAction     = 'Stop'
+    }
+    $uiTokenResult = Invoke-RestMethod @uiTokenRequest
+
+    # Using the access token to request the api token
+    $apiTokenRequest = @{
+        Method          = 'Get'
+        Uri             = '{0}/uat/sso/me/apitoken' -f $Url.GetLeftPart('Authority')
+        Headers         = @{ Authorization = 'Bearer {0}' -f $uiTokenResult.access_token }
+        UseBasicParsing = $true
+        Verbose         = $false
+        ErrorAction     = 'Stop'
+    }
+    $apiTokenResult = Invoke-RestMethod @apiTokenRequest
+
+    # Use the api token to test the project access
+    $projectRequest = @{
+        Method          = 'Get'
+        Uri             = '{0}/api/v1/project/{1}' -f $Url.GetLeftPart('Authority'), $ProjectName
+        ContentType     = 'application/json'
+        Headers         = @{ Authorization = 'Bearer {0}' -f $apiTokenResult.access_token }
+        UseBasicParsing = $true
+        Verbose         = $false
+        ErrorAction     = 'Stop'
+    }
+    $projectResult = Invoke-RestMethod @projectRequest
+
+    # Project access is ok, set the session object to the cache
+    $Script:RPSession = [PSCustomObject] @{
+        PSTypeName = 'ReportPortal.Session'
+        Url        = $Url.GetLeftPart('Authority')
+        Project    = $projectResult.ProjectName
+        Token      = $apiTokenResult.access_token
+    }
 
     if ($PassThru.IsPresent)
     {
-        Write-Output $Script:RPService
+        Write-Output $Script:RPSession
     }
 }

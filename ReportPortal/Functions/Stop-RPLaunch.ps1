@@ -3,29 +3,22 @@
         Finish a previously started report portal launch.
 
     .DESCRIPTION
-        Call the FinishLaunchAsync() method on the service object to finish the
-        existing launch in the report portal. The method will be invoked
-        synchronously.
+        Use the api call /finish to gracafully finish a previously started
+        launch. If not, the The end date will be set to now, if not specified.
 #>
 function Stop-RPLaunch
 {
     [CmdletBinding(SupportsShouldProcess = $true)]
-    [OutputType([ReportPortal.Client.Models.Launch])]
     param
     (
-        # The report portal service.
+        # The report portal session.
         [Parameter(Mandatory = $false)]
-        [ReportPortal.Client.Service]
-        $Service,
-
-        # The launch id to finish.
-        [Parameter(Mandatory = $true, ParameterSetName = 'Uuid')]
-        [System.String]
-        $Uuid,
+        [PSTypeName('ReportPortal.Session')]
+        $Session,
 
         # The launch to finish.
         [Parameter(Mandatory = $true, ParameterSetName = 'Launch')]
-        [ReportPortal.Client.Models.Launch]
+        [PSTypeName('ReportPortal.Launch')]
         $Launch,
 
         # Launch end time.
@@ -33,41 +26,42 @@ function Stop-RPLaunch
         [System.DateTime]
         $EndTime = (Get-Date),
 
-        # Force the finish action.
+        # Force a launch to finish.
         [Parameter(Mandatory = $false)]
-        [switch]
+        [Switch]
         $Force,
 
         # Return the updated launch object.
         [Parameter(Mandatory = $false)]
-        [switch]
+        [Switch]
         $PassThru
     )
 
-    $Service = Test-RPService -Service $Service
+    $Session = Test-RPSession -Session $Session
 
-    try
+    if ($PSCmdlet.ParameterSetName -eq 'Launch')
     {
-        $model = [ReportPortal.Client.Requests.FinishLaunchRequest]::new()
-        $model.EndTime = $EndTime.ToUniversalTime()
+        Write-Verbose ('Stop a report portal launch with id {0}' -f $Launch.Guid)
 
-        if ($PSCmdlet.ParameterSetName -eq 'Launch')
-        {
-            $Uuid = $Launch.Uuid
-        }
-
-        if ($PSCmdlet.ShouldProcess($Id, 'Finish Launch'))
-        {
-            $Service.FinishLaunchAsync($Id, $model, $Force.IsPresent).GetAwaiter().GetResult() | Out-Null
-
-            if ($PassThru.IsPresent)
-            {
-                Get-RPLaunch -Service $Service -Id $Id
-            }
-        }
+        $id   = $Launch.Id
+        $guid = $Launch.Guid
     }
-    catch
+
+    $launchStopRequest = [PSCustomObject] @{
+        endTime = ConvertTo-ReportPortalDateTime -DateTime $EndTime
+        status  = 'PASSED'
+    }
+
+    $action = "$guid/finish"
+    if ($Force.IsPresent)
     {
-        ConvertFrom-RPException -ErrorRecord $_ | Write-Error
+        $action = "$id/stop"
+    }
+
+    if ($PSCmdlet.ShouldProcess($id, 'Stop Launch'))
+    {
+        Invoke-RPRequest -Session $Session -Method 'Put' -Path "launch/$action" -Body $launchStopRequest -ErrorAction 'Stop' | Out-Null
+
+        Get-RPLaunch -Session $Session -Id $id
     }
 }

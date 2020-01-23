@@ -1,59 +1,48 @@
 <#
     .SYNOPSIS
-        Remove an existing report portal launch.
+        Remove a previously finished report portal launch.
 
     .DESCRIPTION
-        Call the DeleteLaunchAsync() method on the service object to remove the
-        existing launch from the report portal. The method will be invoked
-        synchronously.
+        Remove an existing launch from the report portal. Important, the launch
+        must be finished or stopped before, else the Force switch must be used.
 #>
 function Remove-RPLaunch
 {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param
     (
-        # The report portal service.
+        # The report portal session.
         [Parameter(Mandatory = $false)]
-        [ReportPortal.Client.Service]
-        $Service,
-
-        # The launch id to remove.
-        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
-        [System.String]
-        $Id,
+        [PSTypeName('ReportPortal.Session')]
+        $Session,
 
         # The launch to remove.
         [Parameter(Mandatory = $true, ParameterSetName = 'Launch')]
-        [ReportPortal.Client.Models.Launch]
+        [PSTypeName('ReportPortal.Launch')]
         $Launch,
 
-        # Force the removal.
+        # Force a launch to finish before removing.
         [Parameter(Mandatory = $false)]
-        [switch]
+        [Switch]
         $Force
     )
 
-    $Service = Test-RPService -Service $Service
+    $Session = Test-RPSession -Session $Session
 
-    try
+    if ($PSCmdlet.ParameterSetName -eq 'Launch')
     {
-        if ($PSCmdlet.ParameterSetName -eq 'Launch')
-        {
-            $Id = $Launch.Id
-        }
+        Write-Verbose ('Remove the report portal launch with id {0}' -f $Launch.Id)
+
+        $id = $Launch.Id
 
         if ($Force.IsPresent)
         {
-            Stop-RPLaunch -Service $service -Id $Id -Force
-        }
-
-        if ($PSCmdlet.ShouldProcess($Id, 'Remove Launch'))
-        {
-            $Service.DeleteLaunchAsync($Id).GetAwaiter().GetResult() | Out-Null
+            Stop-RPLaunch -Launch $Launch -Force
         }
     }
-    catch
+
+    if ($PSCmdlet.ShouldProcess($id, 'Remove Launch'))
     {
-        ConvertFrom-RPException -ErrorRecord $_ | Write-Error
+        Invoke-RPRequest -Session $Session -Method 'Delete' -Path "launch/$id" -ErrorAction 'Stop' | Out-Null
     }
 }

@@ -18,7 +18,7 @@
     # CompanyName = ''
 
     # Copyright statement for this module
-    Copyright = 'Copyright (c) 2018 by Claudio Spizzi. Licensed under MIT license.'
+    Copyright = 'Copyright (c) 2020 by Claudio Spizzi. Licensed under MIT license.'
 
     # Description of the functionality provided by this module
     Description = 'Report Portal PowerShell Module.'
@@ -45,9 +45,7 @@
     # RequiredModules = @()
 
     # Assemblies that must be loaded prior to importing this module
-    RequiredAssemblies = @(
-        'Assemblies/ReportPortal.Client-2.1.15.1.dll'
-    )
+    # RequiredAssemblies = @()
 
     # Script files (.ps1) that are run in the caller's environment prior to importing this module.
     # ScriptsToProcess = @()
@@ -75,22 +73,23 @@
         'Remove-RPLaunch'
         'Get-RPTestItem'
         'Start-RPTestItem'
-        'Stop-RPTestItem'
+        # 'Remove-RPLaunch'
+        # 'Get-RPTestItem'
+        # 'Start-RPTestItem'
+        # 'Stop-RPTestItem'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-    # CmdletsToExport = @()
+    CmdletsToExport = @()
 
     # Variables to export from this module
-    # VariablesToExport = @()
+    VariablesToExport = @()
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport = @(
-        'Connect-RPService'
-    )
+    AliasesToExport = @()
 
     # DSC resources to export from this module
-    # DscResourcesToExport = @()
+    DscResourcesToExport = @()
 
     # List of all modules packaged with this module
     # ModuleList = @()
@@ -104,7 +103,7 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('PSModule', 'reportportal.io', 'Test', 'Automation', 'Dashboard')
+            Tags = @('PSModule', 'ReportPortal', 'reportportal.io', 'Test', 'Automation', 'Dashboard')
 
             # A URL to the license for this module.
             LicenseUri = 'https://raw.githubusercontent.com/claudiospizzi/ReportPortal/master/LICENSE'

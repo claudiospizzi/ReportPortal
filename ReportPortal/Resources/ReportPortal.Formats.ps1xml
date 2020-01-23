@@ -3,36 +3,36 @@
   <ViewDefinitions>
 
     <View>
-      <Name>ReportPortal.Client.Service</Name>
+      <Name>ReportPortal.Session</Name>
       <ViewSelectedBy>
-        <TypeName>ReportPortal.Client.Service</TypeName>
+        <TypeName>ReportPortal.Session</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>BaseUri</Label>
-            <Width>48</Width>
+            <Label>Url</Label>
+            <Width>36</Width>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Project</Label>
-            <Width>24</Width>
+            <Width>18</Width>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Timeout</Label>
-            <Width>16</Width>
+            <Label>Token</Label>
+            <Width>36</Width>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>BaseUri</PropertyName>
+                <PropertyName>Url</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Project</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Timeout</PropertyName>
+                <PropertyName>Token</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -41,15 +41,15 @@
     </View>
 
     <View>
-      <Name>ReportPortal.Client.Models.Launch</Name>
+      <Name>ReportPortal.Launch</Name>
       <ViewSelectedBy>
-        <TypeName>ReportPortal.Client.Models.Launch</TypeName>
+        <TypeName>ReportPortal.Launch</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
             <Label>Id</Label>
-            <Width>4</Width>
+            <Width>8</Width>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Number</Label>
@@ -57,19 +57,19 @@
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Name</Label>
+            <Width>18</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
             <Width>16</Width>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>StartTime</Label>
-            <Width>16</Width>
+            <Width>22</Width>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>EndTime</Label>
-            <Width>16</Width>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Uuid</Label>
-            <Width>38</Width>
+            <Width>22</Width>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
@@ -85,13 +85,86 @@
                 <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>Status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>StartTime</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>EndTime</PropertyName>
               </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+    <View>
+      <Name>ReportPortal.TestItem</Name>
+      <ViewSelectedBy>
+        <TypeName>ReportPortal.TestItem</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Launch</Label>
+            <Width>8</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Id</Label>
+            <Width>8</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Parent</Label>
+            <Width>8</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Width>9</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Width>16</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>StartTime</Label>
+            <Width>22</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Path</Label>
+            <Width>22</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Width>36</Width>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>Uuid</PropertyName>
+                <PropertyName>LaunchId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ParentId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>StartTime</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Path</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

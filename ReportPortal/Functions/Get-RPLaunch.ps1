@@ -1,70 +1,43 @@
 <#
     .SYNOPSIS
-        Get all report portal launches.
+        Get a specific report portal launch.
 
     .DESCRIPTION
-        Call the GetLaunchAsync() or GetLaunchesAsync() methods on the service
-        object to get all existing launches. The method will be invoked
-        synchronously.
+        Use the id of the launch to get the current status of the launch object.
 #>
 function Get-RPLaunch
 {
-    [CmdletBinding(DefaultParameterSetName = 'None')]
-    [OutputType([ReportPortal.Client.Models.Launch])]
+    [CmdletBinding()]
     param
     (
         # The report portal service.
         [Parameter(Mandatory = $false)]
-        [ReportPortal.Client.Service]
-        $Service,
+        [PSTypeName('ReportPortal.Session')]
+        $Session,
 
         # Optional launch id.
-        [Parameter(Mandatory = $false, ParameterSetName = 'Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [System.String]
-        $Id,
-
-        # Optional launch name.
-        [Parameter(Mandatory = $false, ParameterSetName = 'Name')]
-        [SupportsWildcards()]
-        [System.String]
-        $Name
+        $Id
     )
 
-    $Service = Test-RPService -Service $Service
+    $Session = Test-RPSession -Session $Session
 
-    try
+    Write-Verbose ('Get the report portal launch with id {0}' -f $Id)
+
+    if ($PSCmdlet.ParameterSetName -eq 'Id')
     {
-        if ($PSCmdlet.ParameterSetName -eq 'Id')
-        {
-            $Service.GetLaunchAsync($Id).GetAwaiter().GetResult()
+        $launchResult = Invoke-RPRequest -Session $Session -Method 'Get' -Path "launch/$Id" -ErrorAction 'Stop'
+
+        [PSCustomObject] @{
+            PSTypeName  = 'ReportPortal.Launch'
+            Id          = $launchResult.id
+            Guid        = $launchResult.uuid
+            Name        = $launchResult.name
+            Number      = $launchResult.number
+            Status      = $launchResult.status
+            StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $launchResult.startTime
+            EndTime     = ConvertFrom-ReportPortalDateTime -Timestamp $launchResult.endTime
         }
-        else
-        {
-            $launches = @()
-
-            $filterOption = [ReportPortal.Client.Filtering.FilterOption]::new()
-            $filterOption.Paging = [ReportPortal.Client.Filtering.Paging]::new(1, 300)
-
-            do
-            {
-                $result = $Service.GetLaunchesAsync($filterOption, $false).GetAwaiter().GetResult()
-                $filterOption.Paging.Number++
-
-                $launches += $result.Launches
-            }
-            while ($result.Page.Number -lt $result.Page.TotalPages)
-
-            # Filter all launches by name
-            if ($PSBoundParameters.ContainsKey('Name'))
-            {
-                $launches = $launches | Where-Object { $_.Name -like $Name }
-            }
-
-            Write-Output $launches
-        }
-    }
-    catch
-    {
-        ConvertFrom-RPException -ErrorRecord $_ | Write-Error
     }
 }

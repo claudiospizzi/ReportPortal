@@ -25,4 +25,4 @@ Split-Path -Path $PSCommandPath |
 ## Module Configuration
 
 # Report Portal service object cache
-$Script:RPService = $null
+$Script:RPSession = $null

@@ -9,62 +9,39 @@
 #>
 function Get-RPTestItem
 {
-    [CmdletBinding(DefaultParameterSetName = 'None')]
-    [OutputType([ReportPortal.Client.Models.TestItem])]
+    [CmdletBinding()]
     param
     (
         # The report portal service.
         [Parameter(Mandatory = $false)]
-        [ReportPortal.Client.Service]
-        $Service,
+        [PSTypeName('ReportPortal.Session')]
+        $Session,
 
-        # Optional test item id.
-        [Parameter(Mandatory = $false, ParameterSetName = 'Id')]
+        # Test item id.
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [System.String]
-        $Id,
-
-        # Optional test item name.
-        [Parameter(Mandatory = $false, ParameterSetName = 'Name')]
-        [SupportsWildcards()]
-        [System.String]
-        $Name
+        $Id
     )
 
-    $Service = Test-RPService -Service $Service
+    $Session = Test-RPSession -Session $Session
 
-    try
+    if ($PSCmdlet.ParameterSetName -eq 'Id')
     {
-        if ($PSCmdlet.ParameterSetName -eq 'Id')
-        {
-            $Service.GetTestItemAsync($Id).GetAwaiter().GetResult()
+        Write-Verbose ('Get the report portal test item with id {0}' -f $Id)
+
+        $testItemResult = Invoke-RPRequest -Session $Session -Method 'Get' -Path "item/$Id" -ErrorAction 'Stop'
+        #Write-Host ($testItemResult | Out-String)
+        [PSCustomObject] @{
+            PSTypeName  = 'ReportPortal.TestItem'
+            Id          = $testItemResult.id
+            Guid        = $testItemResult.uuid
+            Name        = $testItemResult.name
+            ParentId    = $testItemResult.parent
+            LaunchId    = $testItemResult.launchId
+            Type        = $testItemResult.type
+            Status      = $testItemResult.status
+            Path        = $testItemResult.path
+            StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $testItemResult.startTime
         }
-        else
-        {
-            $testItems = @()
-
-            $filterOption = [ReportPortal.Client.Filtering.FilterOption]::new()
-            $filterOption.Paging = [ReportPortal.Client.Filtering.Paging]::new(1, 300)
-
-            do
-            {
-                $result = $Service.GetTestItemsAsync($filterOption).GetAwaiter().GetResult()
-                $filterOption.Paging.Number++
-
-                $testItems += $result.TestItems
-            }
-            while ($result.Page.Number -lt $result.Page.TotalPages)
-
-            # Filter all test items by name
-            if ($PSBoundParameters.ContainsKey('Name'))
-            {
-                $testItems = $testItems | Where-Object { $_.Name -like $Name }
-            }
-
-            Write-Output $testItems
-        }
-    }
-    catch
-    {
-        ConvertFrom-RPException -ErrorRecord $_ | Write-Error
     }
 }
