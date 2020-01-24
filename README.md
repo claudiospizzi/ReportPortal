@@ -9,60 +9,66 @@ PowerShell module to interact with the [Report Portal].
 ## Introduction
 
 With this module, a test execution can be uploaded to the Report Portal. The
-module is tested against Report Portal version 3. The module supports creating
-launches, tests and test steps.
+module is tested against Report Portal version 5. The module supports creating
+launches, tests items (suites, tests, steps) and test logs.
 
 The following example shows a whole test run, of course without proper error
 handling. But it is recommended to put the *Stop-* cmdlet into the finally
 block, so that the started launches and items always will be stopped at the end.
 
 ```powershell
-$service = Connect-RPServer -ComputerName 'reportportal' -Port 8080 -ProjectName 'My Project' -UserId '1a9e5a43-3f84-4752-ba50-b8aa9e3f67fd'
+Connect-RPServer -Url 'https://reportportal' -ProjectName 'MyProject' -Credential 'myuser'
 
 try
 {
-    $launch = Start-RPLaunch -Service $service -Name 'My Launch'
+    $launch = Start-RPLaunch -Name 'Demo' -Attribute 'Foo:Bar', 'Hello:World'
 
     try
     {
-        $suite = Start-RPTestItem -Service $service -Launch $launch -Name 'My Suite' -Type Suite
+        $suite = Start-RPTestItem -Launch $launch -Type 'Suite' -Name 'Suite 1'
 
         try
         {
-            $test = Start-RPTestItem -Service $service -Launch $launch -Parent $suite -Name 'My Test' -Type Test
+            $test = Start-RPTestItem -Launch $launch -Parent $suite -Type 'Test' -Name 'Test 1'
 
             try
             {
-                $step = Start-RPTestItem -Service $service -Launch $launch -Parent $test -Name 'My Step' -Type Step
+                $step = Start-RPTestItem -Launch $launch -Parent $test -Type 'Step' -Name 'Step 1'
+
+                Add-RPLog -TestItem $step -Level 'Info' -Message 'My Info Message'
+                Add-RPLog -TestItem $step -Level 'Error' -Message 'My Error Message'
             }
             finally
             {
-                Stop-RPTestItem -Service $service -TestItem $step
+                Stop-RPTestItem -TestItem $step
             }
         }
         finally
         {
-            Stop-RPTestItem -Service $service -TestItem $test
+            Stop-RPTestItem -TestItem $test
         }
     }
     finally
     {
-        Stop-RPTestItem -Service $service -TestItem $suite
+        Stop-RPTestItem -TestItem $suite
     }
 }
 finally
 {
-    Stop-RPLaunch -Service $service -Launch $launch
+    Stop-RPLaunch -Launch $launch
 }
 ```
 
 ## Features
 
 * **Connect-RPServer**  
-  Connect to the report portal service. It will return the service object.
+  Connect to the report portal server.
+
+* **Disconnect-RPServer**  
+  Disconnect from the report portal server.
 
 * **Get-RPLaunch**  
-  Get all report portal launches.
+  Get a specific report portal launch.
 
 * **Start-RPLaunch**  
   Start a new report portal launch.
@@ -71,16 +77,19 @@ finally
   Finish a previously started report portal launch.
 
 * **Remove-RPLaunch**  
-  Remove an existing report portal launch.
+  Remove a previously finished report portal launch.
 
 * **Get-RPTestItem**  
-  Get all test items.
+  Get a test item by id.
 
 * **Start-RPTestItem**  
   Start a new report portal test item.
 
 * **Stop-RPTestItem**  
   Finish an existing report portal test item.
+
+* **Add-RPLog**  
+  Add a log entry to the test item.
 
 ## Versions
 

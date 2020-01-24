@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-        Get all test items.
+        Get a test item by id.
 
     .DESCRIPTION
         Call the GetTestItemAsync() or GetTestItemsAsync() methods on the
