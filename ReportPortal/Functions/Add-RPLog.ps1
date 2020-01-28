@@ -1,9 +1,9 @@
 <#
     .SYNOPSIS
-        Add a log entry to the test item.
+        Add a log entry to the launch or test item.
 
     .DESCRIPTION
-        ..
+        Use this command to add entries to the launch or test item.
 #>
 function Add-RPLog
 {
@@ -15,8 +15,13 @@ function Add-RPLog
         [PSTypeName('ReportPortal.Session')]
         $Session,
 
+        # The launch to add a log entry.
+        [Parameter(Mandatory = $true, ParameterSetName = 'Launch')]
+        [PSTypeName('ReportPortal.Launch')]
+        $Launch,
+
         # The test item to add a log entry.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'TestItem')]
         [PSTypeName('ReportPortal.TestItem')]
         $TestItem,
 
@@ -39,17 +44,35 @@ function Add-RPLog
 
     $Session = Test-RPSession -Session $Session
 
-    Write-Verbose ('Add a report portal log entry to item {0}' -f $TestItem.Guid)
+    if ($PSCmdlet.ParameterSetName -eq 'Launch')
+    {
+        Write-Verbose ('Add a report portal log entry to launch {0}' -f $Launch.Guid)
 
-    $addLogRequest = @(
-        [PSCustomObject] @{
-            item_id     = $TestItem.Guid
-            time        = ConvertTo-ReportPortalDateTime -DateTime $Time
-            level       = $Level.ToUpper()
-            message     = $Message
-            file        = [PSCustomObject] @{ name = '{0}.log' -f $Level.ToLower() }
-        }
-    )
+        $addLogRequest = @(
+            [PSCustomObject] @{
+                launchUuid  = $Launch.Guid
+                time        = ConvertTo-ReportPortalDateTime -DateTime $Time
+                level       = $Level.ToUpper()
+                message     = $Message
+                file        = [PSCustomObject] @{ name = '{0}.log' -f $Level.ToLower() }
+            }
+        )
+    }
+
+    if ($PSCmdlet.ParameterSetName -eq 'TestItem')
+    {
+        Write-Verbose ('Add a report portal log entry to item {0}' -f $TestItem.Guid)
+
+        $addLogRequest = @(
+            [PSCustomObject] @{
+                item_id     = $TestItem.Guid
+                time        = ConvertTo-ReportPortalDateTime -DateTime $Time
+                level       = $Level.ToUpper()
+                message     = $Message
+                file        = [PSCustomObject] @{ name = '{0}.log' -f $Level.ToLower() }
+            }
+        )
+    }
 
     Invoke-RPRequest -Session $Session -Method 'Post' -Path 'log' -Body $addLogRequest -ErrorAction 'Stop' | Out-Null
 }
