@@ -17,7 +17,7 @@ function Stop-RPLaunch
         $Session,
 
         # The launch to finish.
-        [Parameter(Mandatory = $true, ParameterSetName = 'Launch')]
+        [Parameter(Mandatory = $true)]
         [PSTypeName('ReportPortal.Launch')]
         $Launch,
 
@@ -25,6 +25,12 @@ function Stop-RPLaunch
         [Parameter(Mandatory = $false)]
         [System.DateTime]
         $EndTime = (Get-Date),
+
+        # The test result.
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Passed', 'Failed', 'Skipped', 'Interrupted')]
+        [System.String]
+        $Status = 'Passed',
 
         # Force a launch to finish.
         [Parameter(Mandatory = $false)]
@@ -39,32 +45,26 @@ function Stop-RPLaunch
 
     $Session = Test-RPSession -Session $Session
 
-    if ($PSCmdlet.ParameterSetName -eq 'Launch')
-    {
-        Write-Verbose ('Stop a report portal launch with id {0}' -f $Launch.Guid)
-
-        $id   = $Launch.Id
-        $guid = $Launch.Guid
-    }
+    Write-Verbose ('Stop a report portal launch with id {0}' -f $Launch.Guid)
 
     $launchStopRequest = [PSCustomObject] @{
         endTime = ConvertTo-ReportPortalDateTime -DateTime $EndTime
-        status  = 'PASSED'
+        status  = $Status.ToUpper()
     }
 
-    $action = "$guid/finish"
+    $action = '{0}/finish' -f $Launch.Guid
     if ($Force.IsPresent)
     {
-        $action = "$id/stop"
+        $action = "{0}/stop" -f $Launch.Id
     }
 
-    if ($PSCmdlet.ShouldProcess($id, 'Stop Launch'))
+    if ($PSCmdlet.ShouldProcess($Launch.Guid, 'Stop Launch'))
     {
         Invoke-RPRequest -Session $Session -Method 'Put' -Path "launch/$action" -Body $launchStopRequest -ErrorAction 'Stop' | Out-Null
 
         if ($PassThru.IsPresent)
         {
-            Get-RPLaunch -Session $Session -Id $id
+            Get-RPLaunch -Session $Session -Id $Launch.Id
         }
     }
 }
