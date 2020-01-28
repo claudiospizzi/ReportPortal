@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Added: Stop launch with different status than success
 * Added: Add the option to log on a launch
+* Added: Add function Add-RPTestItemStep
 
 ## 1.0.0 - 2020-01-24
 

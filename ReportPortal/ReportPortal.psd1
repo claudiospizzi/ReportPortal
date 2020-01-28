@@ -74,6 +74,7 @@
         'Get-RPTestItem'
         'Start-RPTestItem'
         'Stop-RPTestItem'
+        'Add-RPTestItemStep'
         'Add-RPLog'
     )
 
