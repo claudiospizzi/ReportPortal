@@ -67,6 +67,7 @@
     FunctionsToExport = @(
         'Connect-RPServer'
         'Disconnect-RPServer'
+        'Invoke-RPRequest'
         'Get-RPLaunch'
         'Start-RPLaunch'
         'Stop-RPLaunch'
