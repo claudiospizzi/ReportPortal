@@ -28,6 +28,12 @@ function Invoke-RPRequest
         [System.String]
         $Path,
 
+        # Scope of the request url.
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Project', 'Global')]
+        [System.String]
+        $Scope = 'Project',
+
         # The body object, if it is required.
         [Parameter(Mandatory = $false)]
         [System.Management.Automation.PSObject]
@@ -49,6 +55,12 @@ function Invoke-RPRequest
     if ($PSBoundParameters.ContainsKey('Body'))
     {
         $requestSplat['Body'] = $Body | ConvertTo-Json -Compress
+    }
+
+    # If we have the global scope, update the uri
+    if ($Scope -eq 'Global')
+    {
+        $requestSplat['Uri'] = '{0}/api/v1/{1}' -f $Session.Url, $Path
     }
 
     Write-Verbose ('{0} {1}' -f $requestSplat.Method.ToUpper(), $requestSplat.Uri)

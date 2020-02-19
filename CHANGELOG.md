@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 * Added: Launch, Suite, Test and Step blocks for the report portal DSL
+* Added: Option to invoke generic requests with Invoke-RPRequest
 
 ## 1.1.0 - 2020-01-28
 
