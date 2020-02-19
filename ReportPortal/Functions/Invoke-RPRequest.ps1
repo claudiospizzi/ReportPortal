@@ -29,7 +29,7 @@ function Invoke-RPRequest
         $Path,
 
         # Scope of the request url.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet('Project', 'Global')]
         [System.String]
         $Scope = 'Project',
