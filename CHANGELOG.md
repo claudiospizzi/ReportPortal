@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is mainly based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+* Added: Launch, Suite, Test and Step blocks for the report portal DSL
+
 ## 1.1.0 - 2020-01-28
 
 * Added: Stop launch with different status than success
