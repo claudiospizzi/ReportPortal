@@ -62,7 +62,7 @@ function Write-RPDslInternalError
     }
     if ($PSCmdlet.ParameterSetName -eq 'ErrorRecord')
     {
-        $addTestItemStep['LogMessage'] = "{0}`n{1}" -f $ErrorRecord.ErrorDetails.Message, $ErrorRecord.ScriptStackTrace
+        $addTestItemStep['LogMessage'] = "{0}`n{1}" -f $ErrorRecord, $ErrorRecord.ScriptStackTrace
     }
     if ($PSCmdlet.ParameterSetName -eq 'ErrorMessage')
     {
