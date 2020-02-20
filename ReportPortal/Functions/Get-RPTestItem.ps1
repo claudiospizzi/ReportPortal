@@ -30,7 +30,7 @@ function Get-RPTestItem
         Write-Verbose ('Get the report portal test item with id {0}' -f $Id)
 
         $testItemResult = Invoke-RPRequest -Session $Session -Method 'Get' -Path "item/$Id" -ErrorAction 'Stop'
-        #Write-Host ($testItemResult | Out-String)
+
         [PSCustomObject] @{
             PSTypeName  = 'ReportPortal.TestItem'
             Id          = $testItemResult.id
@@ -41,6 +41,7 @@ function Get-RPTestItem
             Type        = $testItemResult.type
             Status      = $testItemResult.status
             Path        = $testItemResult.path
+            Attributes  = $testItemResult.attributes | ForEach-Object { '{0}:{1}' -f $_.key, $_.value }
             StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $testItemResult.startTime
         }
     }
