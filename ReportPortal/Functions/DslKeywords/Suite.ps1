@@ -37,16 +37,22 @@ function Suite
 
     try
     {
+        # Sum up all tags of the parent definitions
+        $Tag += $Script:RPStack.Attributes
+        $Tag = $Tag | Select-Object -Unique
+
         # Start the suite within the report portal
         $suite = Start-RPTestItem -Launch $Script:RPLaunch -Type 'Suite' -Name $Name -Attribute $Tag -ErrorAction 'Stop'
         $Script:RPStack.Push($suite)
 
         Write-RPDslInformation -Launch $Script:RPLaunch -Stack $Script:RPStack -Message 'Start'
 
-        # Now call the Pester Context block. This block won't throw any
-        # exceptions, because they are handled inside the Pester block. This is
-        # why we have to access the internal Pester varialbe to get and log the
-        # exception to the report portal in the finally block.
+        # Now call the Pester Context block, but without the tag parameter. This
+        # block won't throw any exceptions, because they are handled inside the
+        # Pester block. This is why we have to access the internal Pester
+        # varialbe to get and log the exception to the report portal in the
+        # finally block.
+        $PSBoundParameters.Remove('Tag') | Out-Null
         Pester\Context @PSBoundParameters
 
         # Try to catch internal errors in the Pester execution by extracting the

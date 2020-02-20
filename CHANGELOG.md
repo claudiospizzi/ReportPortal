@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 * Added: Return attributes in Get-RPTestItem
+* Changed: Optimize tag handling for test steps, include parent tags
 * Fixed: Allow empty attribute collection for Start-RPTestItem
 * Fixed: Error message was not displayed for internal errors
 

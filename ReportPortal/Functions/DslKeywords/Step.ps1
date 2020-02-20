@@ -71,15 +71,21 @@ function Step
 
     try
     {
+        # Sum up all tags of the parent definitions
+        $Tag += $Script:RPStack.Attributes
+        $Tag = $Tag | Select-Object -Unique
+
         # We can't start the report portal step because we don't know the name
         # of the test step yet, if we use test cases. That's why we store the
         # time before we invoke the Pester block
         $startTime = Get-Date
 
-        # Now call the Pester It block. This block won't throw any exceptions,
-        # because they are handled inside the Pester block. This is why we have
-        # to access the internal Pester varialbe to get and log the exception to
-        # the report portal in the finally block.
+        # Now call the Pester It block, but without the tag parameter. This
+        # block won't throw any exceptions, because they are handled inside the
+        # Pester block. This is why we have to access the internal Pester
+        # varialbe to get and log the exception to the report portal in the
+        # finally block.
+        $PSBoundParameters.Remove('Tag') | Out-Null
         Pester\It @PSBoundParameters
 
         # After invoking the It block of Pester, get the result from the
@@ -88,7 +94,7 @@ function Step
         # $pesterTestResult | format-list * -Force | Out-String | Write-host
 
         # Start the step within the report portal
-        $step = Start-RPTestItem -Launch $Script:RPLaunch -Parent $Script:RPStack.Peek() -Type 'Step' -StartTime $startTime -Name $pesterTestResult.Name -ErrorAction 'Stop'
+        $step = Start-RPTestItem -Launch $Script:RPLaunch -Parent $Script:RPStack.Peek() -Type 'Step' -StartTime $startTime -Name $pesterTestResult.Name -Attribute $Tag -ErrorAction 'Stop'
         $Script:RPStack.Push($step)
 
         Write-RPDslInformation -Launch $Script:RPLaunch -Stack $Script:RPStack -Message 'Start'
