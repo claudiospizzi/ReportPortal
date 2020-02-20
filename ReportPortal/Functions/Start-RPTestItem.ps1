@@ -44,6 +44,7 @@ function Start-RPTestItem
 
         # The test item attributes.
         [Parameter(Mandatory = $false)]
+        [AllowEmptyCollection()]
         [System.String[]]
         $Attribute
     )

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 * Added: Return attributes in Get-RPTestItem
+* Fixed: Allow empty attribute collection for Start-RPTestItem
 
 ## 1.2.0 - 2020-02-20
 
