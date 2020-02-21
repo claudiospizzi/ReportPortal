@@ -73,6 +73,7 @@ function Step
     {
         # Sum up all tags of the parent definitions
         $Tag += $Script:RPStack.Attributes
+        $Tag += "Suite:$Script:RPSuite"
         $Tag = $Tag | Select-Object -Unique
 
         # We can't start the report portal step because we don't know the name

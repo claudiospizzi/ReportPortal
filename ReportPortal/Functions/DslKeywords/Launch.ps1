@@ -46,6 +46,7 @@ function Launch
         {
             $Script:RPLaunch = $Launch
             $Script:RPStack = [System.Collections.Stack]::new()
+            $Script:RPSuite = ''
 
             $Name = $Script:RPLaunch.Name
         }
@@ -53,6 +54,7 @@ function Launch
         {
             $Script:RPLaunch = Start-RPLaunch -Name $Name -Attribute $Tag -Verbose:$false
             $Script:RPStack = [System.Collections.Stack]::new()
+            $Script:RPSuite = ''
         }
 
         Write-RPDslInformation -Launch $Script:RPLaunch -Message 'Start'
@@ -93,5 +95,6 @@ function Launch
 
         $Script:RPLaunch = $null
         $Script:RPStack = $null
+        $Script:RPSuite = $null
     }
 }

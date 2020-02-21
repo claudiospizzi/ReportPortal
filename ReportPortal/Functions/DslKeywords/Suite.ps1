@@ -37,8 +37,12 @@ function Suite
 
     try
     {
+        # Store the suite name for all child blocks
+        $Script:RPSuite = $Name
+
         # Sum up all tags of the parent definitions
         $Tag += $Script:RPStack.Attributes
+        $Tag += "Suite:$Script:RPSuite"
         $Tag = $Tag | Select-Object -Unique
 
         # Start the suite within the report portal
@@ -80,5 +84,8 @@ function Suite
         {
             $Script:RPStack.Pop() | Out-Null
         }
+
+        # Clear the suite name
+        $Script:RPSuite = ''
     }
 }

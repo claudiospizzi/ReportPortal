@@ -39,6 +39,7 @@ function Test
     {
         # Sum up all tags of the parent definitions
         $Tag += $Script:RPStack.Attributes
+        $Tag += "Suite:$Script:RPSuite"
         $Tag = $Tag | Select-Object -Unique
 
         # Start the test within the report portal
