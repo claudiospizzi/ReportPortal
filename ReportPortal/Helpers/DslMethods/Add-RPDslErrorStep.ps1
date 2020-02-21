@@ -3,28 +3,15 @@
         Add an error to the report portal if possible, which describes the
         internal error occured during the test execution.
 #>
-function Write-RPDslInternalError
+function Add-RPDslErrorStep
 {
     [CmdletBinding()]
     param
     (
-        # The report portal launch.
+        # The report portal context.
         [Parameter(Mandatory = $true)]
-        [AllowNull()]
-        [PSTypeName('ReportPortal.Launch')]
-        $Launch,
-
-        # The parent test item.
-        [Parameter(Mandatory = $false)]
-        [AllowNull()]
-        [PSTypeName('ReportPortal.TestItem')]
-        $Parent,
-
-        # The message to write.
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Launch', 'Suite', 'Test', 'Step')]
-        [System.String]
-        $Scope,
+        [PSTypeName('ReportPortal.Context')]
+        $Context,
 
         # The occured error as ErrorRecord object.
         [Parameter(Mandatory = $true, ParameterSetName = 'ErrorRecord')]
@@ -43,23 +30,37 @@ function Write-RPDslInternalError
     )
 
     # Do nothing if we don't have a launch.
-    if ($null -eq $Launch)
+    if ($null -eq $Context -or $null -eq $Context.Launch -or $Context.Mode -eq 'None')
     {
         return
     }
 
-    # Create the failed test item step log entry, optionally add the parent item
-    # if specified and not null.
+    # The splat to create a new test item error log.
     $addTestItemStep = @{
-        Launch     = $Launch
-        Name       = "Internal $Scope Error"
+        Launch     = $Context.Launch
+        Name       = 'Internal {0} Error'
         Status     = 'Failed'
-        LogMessage = ''
+        LogMessage = 'Unknown'
     }
-    if ($null -ne $Parent)
+
+    # Depending on the level, add a better name and a parent item.
+    if ($null -ne $Context.Tests -and $Context.Tests.Count -gt 0)
     {
-        $addTestItemStep['Parent'] = $Parent
+        $addTestItemStep['Name'] = $addTestItemStep['Name'] -f 'Test'
+        $addTestItemStep['Parent'] = $Context.Tests.Peek()
     }
+    elseif ($null -ne $Context.Suite)
+    {
+        $addTestItemStep['Name'] = $addTestItemStep['Name'] -f 'Suite'
+        $addTestItemStep['Parent'] = $Context.Suite
+    }
+    else
+    {
+        $addTestItemStep['Name'] = $addTestItemStep['Name'] -f 'Launch'
+    }
+
+    # Extract failure information from the error record or the explicitly
+    # specified error message and stack trace.
     if ($PSCmdlet.ParameterSetName -eq 'ErrorRecord')
     {
         $addTestItemStep['LogMessage'] = "{0}`n{1}" -f $ErrorRecord, $ErrorRecord.ScriptStackTrace
@@ -68,5 +69,6 @@ function Write-RPDslInternalError
     {
         $addTestItemStep['LogMessage'] = "{0}`n{1}" -f $ErrorMessage, $ErrorStackTrace
     }
+
     Add-RPTestItemStep @addTestItemStep
 }

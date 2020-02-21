@@ -22,64 +22,92 @@ function Test
         [System.Management.Automation.ScriptBlock]
         $Fixture,
 
-        # Attributes or tags.
+        # Tags used as attributes.
         [Parameter(Mandatory = $false)]
         [Alias('Tags')]
         [System.String[]]
         $Tag = @()
     )
 
-    # Quit the function if not part of a launch.
-    if ($null -eq $Script:RPLaunch -or $null -eq $Script:RPStack)
+    $ErrorActionPreference = 'Stop'
+
+    # Invoke the fixture without the report portal, only native Pester.
+    if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
-        throw 'Test block must be placed inside a Launch block!'
+        Pester\Context -Name $Name -Fixture $Fixture
+    }
+
+    # Quit the function if not part of a suite.
+    if ($null -eq $Script:RPContext -or
+        $null -eq $Script:RPContext.Launch -or
+        $null -eq $Script:RPContext.Suite)
+    {
+        throw 'Test block must be placed within a Suite block!'
     }
 
     try
     {
-        # Sum up all tags of the parent definitions
-        $Tag += $Script:RPStack.Attributes
-        $Tag += "Suite:$Script:RPSuite"
-        $Tag = $Tag | Select-Object -Unique
-
-        # Start the test within the report portal
-        $test = Start-RPTestItem -Launch $Script:RPLaunch -Parent $Script:RPStack.Peek() -Type 'Test' -Name $Name -Attribute $Tag -ErrorAction 'Stop'
-        $Script:RPStack.Push($test)
-
-        Write-RPDslInformation -Launch $Script:RPLaunch -Stack $Script:RPStack -Message 'Start'
-
-        # Now call the Pester Context block, but without the tag parameter. This
-        # block won't throw any exceptions, because they are handled inside the
-        # Pester block. This is why we have to access the internal Pester
-        # varialbe to get and log the exception to the report portal in the
-        # finally block.
-        $PSBoundParameters.Remove('Tag') | Out-Null
-        Pester\Context @PSBoundParameters
-
-        # Try to catch internal errors in the Pester execution by extracting the
-        # Pester state variable, get the last test result and throw it if it has
-        # failed.
-        $pesterTestResult = (& (Get-Module 'Pester') Get-Variable -Name 'Pester' -ValueOnly).TestResult[-1]
-        if ($pesterTestResult.Context -like "*$Name" -and $pesterTestResult.Name -like 'Error occurred in * block')
+        try
         {
-            Write-RPDslInternalError -Launch $Script:RPLaunch -Parent $test -Scope 'Test' -ErrorMessage $pesterTestResult.FailureMessage -ErrorStackTrace $pesterTestResult.StackTrace
+            # The launch and tag sum up behaviour depends, if it's the first test or
+            # it's a nested test.
+            if ($Script:RPContext.Tests.Count -eq 0)
+            {
+                # Sum up tags
+                $Tag += $Script:RPContext.Suite.Attributes
+                $Tag = $Tag | Select-Object -Unique
+
+                $test = Start-RPTestItem -Launch $Script:RPContext.Launch -Parent $Script:RPContext.Suite -Type 'Test' -Name $Name -Attribute $Tag
+            }
+            else
+            {
+                # Sum up tags
+                $Tag += $Script:RPContext.Suite.Attributes
+                $Tag += $Script:RPContext.Tests.Attributes
+                $Tag = $Tag | Select-Object -Unique
+
+                $test = Start-RPTestItem -Launch $Script:RPContext.Launch -Parent $Script:RPContext.Tests.Peek() -Type 'Test' -Name $Name -Attribute $Tag
+            }
+
+            try
+            {
+                $Script:RPContext.Tests.Push($test)
+
+                Write-RPDslVerbose -Context $Script:RPContext -Message 'Start'
+
+                # Now call the Pester Context block. This block won't throw any
+                # exceptions, because they are handled inside the Pester block.
+                # This is why we have to access the internal Pester varialbe to
+                # get and log the exception to the report portal in the finally
+                # block.
+                Pester\Context -Name $Name -Fixture $Fixture
+
+                # Try to catch internal errors in the Pester execution by
+                # extracting the Pester state variable, get the last test result
+                # and throw it if it has failed.
+                $pesterTestResult = (& (Get-Module 'Pester') Get-Variable -Name 'Pester' -ValueOnly).TestResult[-1]
+                if ($pesterTestResult.Context -like "*$Name" -and $pesterTestResult.Name -like 'Error occurred in * block')
+                {
+                    Add-RPDslErrorStep -Context $Script:RPContext -ErrorMessage $pesterTestResult.FailureMessage -ErrorStackTrace $pesterTestResult.StackTrace
+                }
+            }
+            finally
+            {
+                Write-RPDslVerbose -Context $Script:RPContext -Message 'Stop'
+
+                $Script:RPContext.Tests.Pop() | Out-Null
+            }
+        }
+        finally
+        {
+            if ($null -ne $test)
+            {
+                Stop-RPTestItem -TestItem $test
+            }
         }
     }
     catch
     {
-        Write-RPDslInternalError -Launch $Script:RPLaunch -Parent $test -Scope 'Test' -ErrorRecord $_
-    }
-    finally
-    {
-        Write-RPDslInformation -Launch $Script:RPLaunch -Stack $Script:RPStack -Message 'Stop'
-
-        # Try to stop the test, ignore any error
-        Stop-RPTestItem -TestItem $test -ErrorAction 'SilentlyContinue'
-
-        # Remove the test from the stack
-        if ($null -ne $test -and $Script:RPStack.Count -gt 0 -and $Script:RPStack.Peek().Guid -eq $test.Guid)
-        {
-            $Script:RPStack.Pop() | Out-Null
-        }
+        Add-RPDslErrorStep -Context $Script:RPContext -ErrorRecord $_
     }
 }

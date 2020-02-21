@@ -62,7 +62,7 @@ function Start-RPTestItem
     }
 
     $path = 'item'
-    if ($PSBoundParameters.ContainsKey('Parent'))
+    if ($PSBoundParameters.ContainsKey('Parent') -and $null -ne $Parent)
     {
         $path = 'item/{0}' -f $Parent.Guid
     }

@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-        A report portal test step.
+        A report portal step.
 
     .DESCRIPTION
         This DSL keyword will invoke the real test step, specified in the $Test
@@ -10,7 +10,7 @@
 #>
 function Step
 {
-    [CmdletBinding(DefaultParameterSetName = 'Normal')]
+    [CmdletBinding()]
     param
     (
         # Name of the test step.
@@ -28,34 +28,51 @@ function Step
         [System.Collections.IDictionary[]]
         $TestCases,
 
-        # Attributes or tags.
+        # Tags used as attributes.
         [Parameter(Mandatory = $false)]
         [Alias('Tags')]
         [System.String[]]
         $Tag = @(),
 
         # Test is pending.
-        [Parameter(ParameterSetName = 'Pending')]
+        [Parameter(Mandatory = $false)]
         [Switch]
         $Pending,
 
         # Test is skipped.
-        [Parameter(ParameterSetName = 'Skip')]
+        [Parameter(Mandatory = $false)]
         [Alias('Ignore')]
         [Switch]
         $Skip
     )
 
-    # Quit the function if not part of a launch and suite or test.
-    if ($null -eq $Script:RPLaunch -or $null -eq $Script:RPStack -or $Script:RPStack.Count -eq 0)
+    $ErrorActionPreference = 'Stop'
+
+    # Invoke the test without the report portal, only native Pester.
+    if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
-        throw 'Step block must be placed inside a Launch and a Suite or Test block!'
+        $PSBoundParameters.Remove('Tag') | Out-Null
+        if ($Pending.IsPresent -and $Skip.IsPresent)
+        {
+            $PSBoundParameters.Remove('Pending') | Out-Null
+        }
+        Pester\It @PSBoundParameters
+    }
+
+    # Quit the function if not part of a suite.
+    if ($null -eq $Script:RPContext -or
+        $null -eq $Script:RPContext.Launch -or
+        $null -eq $Script:RPContext.Suite -or
+        $null -eq $Script:RPContext.Tests -or
+        $Script:RPContext.Tests.Count -eq 0)
+    {
+        throw 'Step block must be placed within a Test block!'
     }
 
     # Recursive call if we use test cases and have more than one case. If this
     # is true, we will remote the TestCases from the bound parameters and call
     # the Step function recursively, once for each test case. With this, we
-    # simply have one test per Step run and we can leverage the test suite
+    # simply have one test per Step to run and we can leverage the test suite
     # implementation of Pester.
     if ($PSBoundParameters.ContainsKey('TestCases') -and $TestCases.Count -gt 1)
     {
@@ -71,15 +88,15 @@ function Step
 
     try
     {
-        # Sum up all tags of the parent definitions
-        $Tag += $Script:RPStack.Attributes
-        $Tag += "Suite:$Script:RPSuite"
+        # Sum up tags
+        $Tag += $Script:RPContext.Suite.Attributes
+        $Tag += $Script:RPContext.Tests.Attributes
         $Tag = $Tag | Select-Object -Unique
 
-        # We can't start the report portal step because we don't know the name
-        # of the test step yet, if we use test cases. That's why we store the
-        # time before we invoke the Pester block
-        $startTime = Get-Date
+        # # We can't start the report portal step because we don't know the
+        # # name of the test step yet, if we use test cases. That's why we
+        # # store the time before we invoke the Pester block.
+        # $startTime = (Get-Date)
 
         # Now call the Pester It block, but without the tag parameter. This
         # block won't throw any exceptions, because they are handled inside the
@@ -87,61 +104,80 @@ function Step
         # varialbe to get and log the exception to the report portal in the
         # finally block.
         $PSBoundParameters.Remove('Tag') | Out-Null
+        if ($Pending.IsPresent -and $Skip.IsPresent)
+        {
+            $PSBoundParameters.Remove('Pending') | Out-Null
+        }
         Pester\It @PSBoundParameters
 
         # After invoking the It block of Pester, get the result from the
         # internal state variable.
         $pesterTestResult = (& (Get-Module 'Pester') Get-Variable -Name 'Pester' -ValueOnly).CurrentTestGroup.Actions[-1]
-        # $pesterTestResult | format-list * -Force | Out-String | Write-host
 
-        # Start the step within the report portal
-        $step = Start-RPTestItem -Launch $Script:RPLaunch -Parent $Script:RPStack.Peek() -Type 'Step' -StartTime $startTime -Name $pesterTestResult.Name -Attribute $Tag -ErrorAction 'Stop'
-        $Script:RPStack.Push($step)
+        # Write-Host ('{0} => {1}' -f $pesterTestResult.Context, $pesterTestResult.Name)
 
-        Write-RPDslInformation -Launch $Script:RPLaunch -Stack $Script:RPStack -Message 'Start'
-
-        # For each test, we add the definition of the It block to the report
-        # portal log, so that we easy can troubleshoot the errors.
-        Add-RPLog -TestItem $step -Level 'Debug' -Message (Format-RPDslItBlock -Name $pesterTestResult.Name -Test $Test)
-
-        # If the test fails, add this error as log entry to the test step.
-        if ($pesterTestResult.Result -eq 'Failed')
+        try
         {
-            Add-RPLog -TestItem $step -Level 'Error' -Message ("{0}`n{1}" -f $pesterTestResult.FailureMessage, $pesterTestResult.StackTrace)
+            $step = Start-RPTestItem -Launch $Script:RPContext.Launch -Parent $Script:RPContext.Tests.Peek() -Type 'Step' -Name $pesterTestResult.Name -Attribute $Tag
+
+            try
+            {
+                $Script:RPContext.Tests.Push($step)
+
+                Write-RPDslVerbose -Context $Script:RPContext -Message 'Start'
+
+                # For each test, we add the definition of the It block to the
+                # report portal log, so that we easy can troubleshoot the
+                # errors.
+                Add-RPLog -TestItem $step -Level 'Debug' -Message (Format-RPDslItBlock -Name $pesterTestResult.Name -Test $Test)
+
+                # If the test fails, add this error as log entry to the test step.
+                if ($pesterTestResult.Result -eq 'Failed')
+                {
+                    Add-RPLog -TestItem $step -Level 'Error' -Message ("{0}`n{1}" -f $pesterTestResult.FailureMessage, $pesterTestResult.StackTrace)
+                }
+
+                if (Test-RPDslSupression -Context $Script:RPContext)
+                {
+                    $status = 'Skipped'
+                }
+                else
+                {
+                    # Set the status of the test. This is derived from the
+                    # Pester result status into a report portal result status.
+                    switch ($pesterTestResult.Result)
+                    {
+                        'Passed'  { $status = 'Passed' }
+                        'Failed'  { $status = 'Failed' }
+                        'Skipped' { $status = 'Skipped' }
+                        'Pending' { $status = 'Skipped' }
+                        default   { $status = 'Failed' }
+                    }
+                }
+            }
+            finally
+            {
+                Write-RPDslVerbose -Context $Script:RPContext -Message 'Stop'
+
+                $Script:RPContext.Tests.Pop() | Out-Null
+            }
         }
-
-        # Set the status of the test. This is derived from the Pester result
-        # status into a report portal result status.
-        $stepStatus = $pesterTestResult.Result
-        if ($stepStatus -notin 'Passed', 'Failed', 'Skipped')
+        finally
         {
-            $stepStatus = 'Failed'
+            if ($null -ne $step)
+            {
+                # If status has not been set, fix it
+                if ($null -eq $status)
+                {
+                    $status = 'Failed'
+                }
+
+                Stop-RPTestItem -TestItem $step -Status $status
+            }
         }
     }
     catch
     {
-        Write-RPDslInternalError -Launch $Script:RPLaunch -Parent $Script:RPStack.Peek() -Scope 'Step' -ErrorRecord $_
-    }
-    finally
-    {
-        Write-RPDslInformation -Launch $Script:RPLaunch -Stack $Script:RPStack -Message 'Stop'
-
-        switch ($pesterTestResult.Result)
-        {
-            'Passed'  { $status = 'Passed' }
-            'Failed'  { $status = 'Failed' }
-            'Skipped' { $status = 'Skipped' }
-            'Pending' { $status = 'Skipped' }
-            default   { $status = 'Failed' }
-        }
-
-        # Try to stop the test, ignore any error
-        Stop-RPTestItem -TestItem $step -Status $status -ErrorAction 'SilentlyContinue'
-
-        # Remove the step from the stack
-        if ($null -ne $step -and $Script:RPStack.Count -gt 0 -and $Script:RPStack.Peek().Guid -eq $step.Guid)
-        {
-            $Script:RPStack.Pop() | Out-Null
-        }
+        Add-RPDslErrorStep -Context $Script:RPContext -ErrorRecord $_
     }
 }

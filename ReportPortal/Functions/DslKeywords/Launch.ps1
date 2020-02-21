@@ -5,6 +5,8 @@
     .DESCRIPTION
         This DSL keyword will use the already startet launch or will start and
         finish a new launch with the specified name, to invoke all test steps.
+        If the Launch is not specified at all, null or an empty string, the test
+        will be invoked in Pester but without any Report Portal interaction.
 #>
 function Launch
 {
@@ -13,13 +15,14 @@ function Launch
     (
         # Name of the launch. A new launch will be started and stopped.
         [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Name')]
-        [ValidateNotNullOrEmpty()]
+        [AllowEmptyString()]
         [System.String]
         $Name,
 
         # Use the already started launch. It will not be stopped after testing.
         [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Launch')]
-        [PSTypeName('ReportPortal.Launch')]
+        [AllowNull()]
+        [PStypeName('ReportPortal.Launch')]
         $Launch,
 
         # Test content.
@@ -28,73 +31,78 @@ function Launch
         [System.Management.Automation.ScriptBlock]
         $Fixture,
 
-        # Attributes or tags.
+        # List of test steps to be suppressed.
+        [Parameter(Mandatory = $false)]
+        [System.String[]]
+        $Suppression = @(),
+
+        # Tags used as attributes.
         [Parameter(Mandatory = $false)]
         [Alias('Tags')]
         [System.String[]]
         $Tag = @()
     )
 
-    # Catch all errors happenind in the Launch block.
     $ErrorActionPreference = 'Stop'
 
     try
     {
-        # Just store the passed launch object in the context, if specified. Or
-        # start a new launch if only the launch name was specified.
-        if ($PSCmdlet.ParameterSetName -eq 'Launch')
+        # Create a DSL context object to hold the current execution context for
+        # this launch. This will be cleared in the finally block.
+        $Script:RPContext = Initialize-RPDslContext -Name $Name -Launch $Launch -Suppression $Suppression
+
+        # Invoke the fixture without the report portal, only native Pester.
+        if ($null -eq $Script:RPContext -or $Script:RPContext.Mode -eq 'None')
         {
-            $Script:RPLaunch = $Launch
-            $Script:RPStack = [System.Collections.Stack]::new()
-            $Script:RPSuite = ''
-
-            $Name = $Script:RPLaunch.Name
+            Pester\Describe -Name 'Launch' -Fixture $Fixture
         }
-        else
+
+        try
         {
-            $Script:RPLaunch = Start-RPLaunch -Name $Name -Attribute $Tag -Verbose:$false
-            $Script:RPStack = [System.Collections.Stack]::new()
-            $Script:RPSuite = ''
-        }
-
-        Write-RPDslInformation -Launch $Script:RPLaunch -Message 'Start'
-
-        # We wrap the launch ficture into a describe block, so that the direct
-        # child Suite and Test fixtures which are specified in the $Fixture can
-        # get internal error from within the Pester module.
-        # This won't work for errors happening in the $Fixture and are not
-        # wrapped into a Pester block. That's why we have to wrap the $Fixture
-        # in an try/catch and write the error directly to the report portal from
-        # the Describe block.
-        Pester\Describe -Name $Name -Fixture {
-            try
+            # In active mode, we start and step a new launch.
+            if ($Script:RPContext.Mode -eq 'Active')
             {
-                & $Fixture
+                $Script:RPContext.Launch = Start-RPLaunch -Name $Name -Attribute $Tag
             }
-            catch
-            {
-                Write-RPDslInternalError -Launch $Script:RPLaunch -Scope 'Launch' -ErrorRecord $_
-                throw $_
+
+            Write-RPDslVerbose -Context $Script:RPContext -Message 'Start'
+
+            # We wrap the launch fixture into a describe block, so that the
+            # direct child Suite and Test fixtures which are specified in the
+            # $Fixture can get internal error from within the Pester module.
+            # This won't work for errors happening in the $Fixture and are not
+            # wrapped into a Pester block. That's why we have to wrap the
+            # $Fixture in an try/catch and write the error directly to the
+            # report portal from the Describe block.
+            Pester\Describe -Name $Name -Fixture {
+                try
+                {
+                    & $Fixture
+                }
+                catch
+                {
+                    Add-RPDslErrorStep -Context $Script:RPContext -ErrorRecord $_
+                    throw $_
+                }
             }
         }
-    }
-    catch
-    {
-        Write-RPDslInternalError -Launch $Script:RPLaunch -Scope 'Launch' -ErrorRecord $_
-        throw $_
+        catch
+        {
+            Add-RPDslErrorStep -Context $Script:RPContext -ErrorRecord $_
+        }
+        finally
+        {
+            Write-RPDslVerbose -Context $Script:RPContext -Message 'Stop'
+
+            # In active mode, we start and step a new launch.
+            if ($Script:RPContext.Mode -eq 'Active')
+            {
+                $Script:RPContext.Launch = Stop-RPLaunch -Launch $Script:RPContext.Launch -PassThru
+            }
+        }
     }
     finally
     {
-        Write-RPDslInformation -Launch $Script:RPLaunch -Message 'Stop'
-
-        # Finish the launch, if it was started within this function
-        if ($PSCmdlet.ParameterSetName -contains 'Name')
-        {
-            $Script:RPLaunch = Stop-RPLaunch -Launch $Script:RPLaunch -PassThru
-        }
-
-        $Script:RPLaunch = $null
-        $Script:RPStack = $null
-        $Script:RPSuite = $null
+        $Script:RPContext = $null
     }
 }

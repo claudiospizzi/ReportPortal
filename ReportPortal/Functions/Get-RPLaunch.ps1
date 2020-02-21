@@ -34,6 +34,7 @@ function Get-RPLaunch
             Id          = $launchResult.id
             Guid        = $launchResult.uuid
             Name        = $launchResult.name
+            Type        = 'Launch'
             Number      = $launchResult.number
             Status      = $launchResult.status
             StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $launchResult.startTime

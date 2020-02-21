@@ -36,9 +36,9 @@ function Get-RPTestItem
             Id          = $testItemResult.id
             Guid        = $testItemResult.uuid
             Name        = $testItemResult.name
+            Type        = $testItemResult.type
             ParentId    = $testItemResult.parent
             LaunchId    = $testItemResult.launchId
-            Type        = $testItemResult.type
             Status      = $testItemResult.status
             Path        = $testItemResult.path
             Attributes  = $testItemResult.attributes | ForEach-Object { '{0}:{1}' -f $_.key, $_.value }
