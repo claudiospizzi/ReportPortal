@@ -5,6 +5,7 @@
 function Test-RPDslSupression
 {
     [CmdletBinding()]
+    [OutputType([System.Boolean])]
     param
     (
         # The report portal context.
