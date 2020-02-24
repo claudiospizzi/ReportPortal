@@ -74,7 +74,7 @@ function Launch
             # wrapped into a Pester block. That's why we have to wrap the
             # $Fixture in an try/catch and write the error directly to the
             # report portal from the Describe block.
-            Pester\Describe -Name $Name -Fixture {
+            Pester\Describe -Name $Script:RPContext.Launch.Name -Fixture {
                 try
                 {
                     & $Fixture
