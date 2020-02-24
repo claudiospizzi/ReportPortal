@@ -77,6 +77,9 @@
         'Stop-RPTestItem'
         'Add-RPTestItemStep'
         'Add-RPLog'
+
+        'Get-RPFilter'
+
         'Launch'
         'Suite'
         'Test'
