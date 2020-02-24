@@ -35,6 +35,7 @@ function Test
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
         Pester\Context -Name $Name -Fixture $Fixture
+        return
     }
 
     # Quit the function if not part of a suite.

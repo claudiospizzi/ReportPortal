@@ -57,6 +57,7 @@ function Step
             $PSBoundParameters.Remove('Pending') | Out-Null
         }
         Pester\It @PSBoundParameters
+        return
     }
 
     # Quit the function if not part of a suite.

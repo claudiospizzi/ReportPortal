@@ -55,6 +55,7 @@ function Launch
         if ($null -eq $Script:RPContext -or $Script:RPContext.Mode -eq 'None')
         {
             Pester\Describe -Name 'Launch' -Fixture $Fixture
+            return
         }
 
         try

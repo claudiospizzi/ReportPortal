@@ -35,6 +35,7 @@ function Suite
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
         Pester\Describe -Name $Name -Fixture $Fixture
+        return
     }
 
     # Quit the function if not part of a launch.
