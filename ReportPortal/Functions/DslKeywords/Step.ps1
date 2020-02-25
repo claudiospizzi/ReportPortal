@@ -94,11 +94,6 @@ function Step
         $Tag += $Script:RPContext.Tests.Attributes
         $Tag = $Tag | Select-Object -Unique
 
-        # # We can't start the report portal step because we don't know the
-        # # name of the test step yet, if we use test cases. That's why we
-        # # store the time before we invoke the Pester block.
-        # $startTime = (Get-Date)
-
         # Now call the Pester It block, but without the tag parameter. This
         # block won't throw any exceptions, because they are handled inside the
         # Pester block. This is why we have to access the internal Pester
@@ -114,8 +109,6 @@ function Step
         # After invoking the It block of Pester, get the result from the
         # internal state variable.
         $pesterTestResult = (& (Get-Module 'Pester') Get-Variable -Name 'Pester' -ValueOnly).CurrentTestGroup.Actions[-1]
-
-        # Write-Host ('{0} => {1}' -f $pesterTestResult.Context, $pesterTestResult.Name)
 
         try
         {

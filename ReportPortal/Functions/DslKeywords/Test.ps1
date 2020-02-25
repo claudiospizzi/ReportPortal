@@ -4,7 +4,8 @@
 
     .DESCRIPTION
         This DSL keyword will create a new test in the report portal launch. The
-        fixture is then invoked within a Pester Context block.
+        fixture is then invoked within a Pester Context block. Test blocks can
+        be nested into themself for multiple levels.
 #>
 function Test
 {
