@@ -9,7 +9,7 @@
 #>
 function Invoke-RPRequest
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Simple')]
     param
     (
         # The report portal session.
@@ -37,7 +37,17 @@ function Invoke-RPRequest
         # The body object, if it is required.
         [Parameter(Mandatory = $false)]
         [System.Management.Automation.PSObject]
-        $Body
+        $Body,
+
+        # Page number if we return paged output.
+        [Parameter(Mandatory = $true, ParameterSetName = 'Paged')]
+        [System.Int32]
+        $PageNumber,
+
+        # Page size, should not be bigger than 300.
+        [Parameter(Mandatory = $true, ParameterSetName = 'Paged')]
+        [System.Int32]
+        $PageSize
     )
 
     # Basic reqeust
@@ -49,6 +59,12 @@ function Invoke-RPRequest
         UseBasicParsing = $true
         Verbose         = $false
         ErrorAction     = 'Stop'
+    }
+
+    # Add paging if specified
+    if ($PSCmdlet.ParameterSetName -eq 'Paged')
+    {
+        $requestSplat['Uri'] = '{0}?page.page={1}&page.size={2}' -f $requestSplat['Uri'], $PageNumber, $PageSize
     }
 
     # Optionally, add the body parameter

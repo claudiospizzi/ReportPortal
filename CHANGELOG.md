@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 * Added: Option to completely skip (hide) a test step
+* Added: Paging option to Invoke-RPRequest
 
 ## 1.4.0 - 2020-02-25
 
