@@ -7,7 +7,7 @@
 #>
 function Get-RPLaunch
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'All')]
     param
     (
         # The report portal service.
@@ -23,22 +23,41 @@ function Get-RPLaunch
 
     $Session = Test-RPSession -Session $Session
 
-    Write-Verbose ('Get the report portal launch with id {0}' -f $Id)
+    $launches = [System.Collections.ArrayList]::new()
+
+    if ($PSCmdlet.ParameterSetName -eq 'All')
+    {
+        Write-Verbose 'Get all report portal launches'
+
+        for ($i = 1; $i -eq 1 -or $i -le $launchResult.page.totalPages; $i++)
+        {
+            $launchResult = Invoke-RPRequest -Session $Session -Method 'Get' -Path 'launch' -PageNumber $i -PageSize 50 -ErrorAction 'Stop'
+
+            $launchResult.content | ForEach-Object { $launches.Add($_) | Out-Null }
+        }
+    }
 
     if ($PSCmdlet.ParameterSetName -eq 'Id')
     {
+        Write-Verbose ('Get the report portal launch with id {0}' -f $Id)
+
         $launchResult = Invoke-RPRequest -Session $Session -Method 'Get' -Path "launch/$Id" -ErrorAction 'Stop'
 
+        $launches.Add($launchResult) | Out-Null
+    }
+
+    foreach ($launch in $launches)
+    {
         [PSCustomObject] @{
             PSTypeName  = 'ReportPortal.Launch'
-            Id          = $launchResult.id
-            Guid        = $launchResult.uuid
-            Name        = $launchResult.name
+            Id          = $launch.id
+            Guid        = $launch.uuid
+            Name        = $launch.name
             Type        = 'Launch'
-            Number      = $launchResult.number
-            Status      = $launchResult.status
-            StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $launchResult.startTime
-            EndTime     = ConvertFrom-ReportPortalDateTime -Timestamp $launchResult.endTime
+            Number      = $launch.number
+            Status      = $launch.status
+            StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $launch.startTime
+            EndTime     = ConvertFrom-ReportPortalDateTime -Timestamp $launch.endTime
         }
     }
 }
