@@ -43,10 +43,21 @@ function Step
         [Parameter(Mandatory = $false)]
         [Alias('Ignore')]
         [Switch]
-        $Skip
+        $Skip,
+
+        # Test is hidden and not executed at all.
+        [Parameter(Mandatory = $false)]
+        [Switch]
+        $Hide
     )
 
     $ErrorActionPreference = 'Stop'
+
+    # If the test is hidden, just return and do nothing with this test.
+    if ($Hide.IsPresent)
+    {
+        return
+    }
 
     # Invoke the test without the report portal, only native Pester.
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
