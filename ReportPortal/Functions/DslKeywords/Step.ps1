@@ -63,6 +63,7 @@ function Step
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
         $PSBoundParameters.Remove('Tag') | Out-Null
+        $PSBoundParameters.Remove('Hide') | Out-Null
         if ($Pending.IsPresent -and $Skip.IsPresent)
         {
             $PSBoundParameters.Remove('Pending') | Out-Null
