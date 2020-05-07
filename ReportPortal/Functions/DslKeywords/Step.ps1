@@ -112,6 +112,7 @@ function Step
         # varialbe to get and log the exception to the report portal in the
         # finally block.
         $PSBoundParameters.Remove('Tag') | Out-Null
+        $PSBoundParameters.Remove('Hide') | Out-Null
         if ($Pending.IsPresent -and $Skip.IsPresent)
         {
             $PSBoundParameters.Remove('Pending') | Out-Null
