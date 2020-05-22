@@ -2,7 +2,7 @@
     .SYNOPSIS
         Test if the current context should be supressed.
 #>
-function Test-RPDslSupression
+function Test-RPDslSuppression
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])]

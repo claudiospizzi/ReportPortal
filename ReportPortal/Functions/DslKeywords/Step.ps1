@@ -144,7 +144,7 @@ function Step
                     Add-RPLog -TestItem $step -Level 'Error' -Message ("{0}`n{1}" -f $pesterTestResult.FailureMessage, $pesterTestResult.StackTrace)
                 }
 
-                if (Test-RPDslSupression -Context $Script:RPContext)
+                if (Test-RPDslSuppression -Context $Script:RPContext)
                 {
                     $status = 'Skipped'
                 }
