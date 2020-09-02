@@ -2,13 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PowerShell Interactive",
-            "type": "PowerShell",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "createTemporaryIntegratedConsole": true
-        },
-        {
             "name": "PowerShell Debug Script",
             "type": "PowerShell",
             "request": "launch",
