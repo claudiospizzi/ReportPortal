@@ -26,7 +26,13 @@ function Suite
         [Parameter(Mandatory = $false)]
         [Alias('Tags')]
         [System.String[]]
-        $Tag = @()
+        $Tag = @(),
+
+        # An already started suite object.
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [PStypeName('ReportPortal.TestItem')]
+        $Suite = $null
     )
 
     $ErrorActionPreference = 'Stop'
@@ -53,7 +59,16 @@ function Suite
 
         try
         {
-            $Script:RPContext.Suite = Start-RPTestItem -Launch $Script:RPContext.Launch -Type 'Suite' -Name $Name -Attribute $Tag
+            if (-not $PSBoundParameters.ContainsKey('Suite'))
+            {
+                $Script:RPContext.Suite = Start-RPTestItem -Launch $Script:RPContext.Launch -Type 'Suite' -Name $Name -Attribute $Tag
+            }
+            else
+            {
+                $Script:RPContext.Suite = $Suite
+            }
+
+            # Initialize a new stack of tests, used within the suite.
             $Script:RPContext.Tests = [System.Collections.Stack]::new()
 
             Write-RPDslVerbose -Context $Script:RPContext -Message 'Start'
@@ -77,7 +92,10 @@ function Suite
         {
             Write-RPDslVerbose -Context $Script:RPContext -Message 'Stop'
 
-            Stop-RPTestItem -TestItem $Script:RPContext.Suite
+            if (-not $PSBoundParameters.ContainsKey('Suite'))
+            {
+                Stop-RPTestItem -TestItem $Script:RPContext.Suite
+            }
 
             $Script:RPContext.Tests = $null
             $Script:RPContext.Suite = $null
