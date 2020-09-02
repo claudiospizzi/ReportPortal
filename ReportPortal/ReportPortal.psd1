@@ -3,7 +3,7 @@
     RootModule = 'ReportPortal.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.5.2'
+    ModuleVersion = '1.6.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
