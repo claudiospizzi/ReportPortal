@@ -14,7 +14,7 @@ function Initialize-RPDslContext
 
         # Use the already started launch. It will not be stopped after testing.
         [Parameter(Mandatory = $true)]
-        [Allownull()]
+        [AllowNull()]
         [PSTypeName('ReportPortal.Launch')]
         $Launch,
 
@@ -25,7 +25,17 @@ function Initialize-RPDslContext
         $Suppression
     )
 
-    # If the launch was not passed but we have
+    # Specify the launch execution modes:
+    # - Passive
+    #   The launch already exists. Reuse this launch object but passive
+    #   indicates, that the launch was startetd externally.
+    # - Active
+    #   The launch does not exist, but we have a launch name specified, e.g.
+    #   it's not an empty string. This means we have to start and stop the
+    #   internally.
+    # - None
+    #   No launch object or name was specified, just execute the tests as if
+    #   they were normal Pester tests.
     if ($null -ne $Launch)
     {
         $mode = 'Passive'
