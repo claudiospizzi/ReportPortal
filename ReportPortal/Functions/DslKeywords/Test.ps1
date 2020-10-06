@@ -35,7 +35,16 @@ function Test
     # Invoke the fixture without the report portal, only native Pester.
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
-        Pester\Context -Name $Name -Fixture $Fixture
+        try
+        {
+            $Script:RPContext.PesterPath.Push($Name)
+
+            Pester\Context -Name $Name -Fixture $Fixture
+        }
+        finally
+        {
+            $Script:RPContext.PesterPath.Pop() | Out-Null
+        }
         return
     }
 

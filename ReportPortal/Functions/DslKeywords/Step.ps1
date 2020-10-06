@@ -62,13 +62,26 @@ function Step
     # Invoke the test without the report portal, only native Pester.
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
     {
-        $PSBoundParameters.Remove('Tag') | Out-Null
-        $PSBoundParameters.Remove('Hide') | Out-Null
-        if ($Pending.IsPresent -and $Skip.IsPresent)
+        try
         {
-            $PSBoundParameters.Remove('Pending') | Out-Null
+            $Script:RPContext.PesterPath.Push($Name)
+
+            $PSBoundParameters.Remove('Tag') | Out-Null
+            $PSBoundParameters.Remove('Hide') | Out-Null
+            if ($Pending.IsPresent -and $Skip.IsPresent)
+            {
+                $PSBoundParameters.Remove('Pending') | Out-Null
+            }
+            if (Test-RPDslSuppression -Context $Script:RPContext)
+            {
+                $PSBoundParameters.Skip = $true
+            }
+            Pester\It @PSBoundParameters
         }
-        Pester\It @PSBoundParameters
+        finally
+        {
+            $Script:RPContext.PesterPath.Pop() | Out-Null
+        }
         return
     }
 

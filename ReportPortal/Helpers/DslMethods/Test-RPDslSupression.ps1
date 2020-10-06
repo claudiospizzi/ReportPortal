@@ -14,20 +14,33 @@ function Test-RPDslSuppression
         $Context
     )
 
-    $path = $Context.Launch.Name
-
-    if ($null -ne $Context.Suite)
+    if ($Context.Mode -eq 'None')
     {
-        $path = '{0}/{1}' -f $path, $Context.Suite.Name
+        # Use the Pester stack and join all elements together to create the path
+        # to the test name.
+        $pathNames = $Context.PesterPath.ToArray()
+        [System.Array]::Reverse($pathNames)
+        $path = $pathNames -join '/'
     }
-
-    if ($null -ne $Context.Tests -and $Context.Tests.Count -gt 0)
+    else
     {
-        $testNames = @($Context.Tests.Name)
-        [System.Array]::Reverse($testNames)
-        foreach ($testName in $testNames)
+        # Use the report portal elements like Launch, Suite, Test and Step to
+        # produce the path, which is then matched against the suppression.
+        $path = $Context.Launch.Name
+
+        if ($null -ne $Context.Suite)
         {
-            $path = '{0}/{1}' -f $path, $testName
+            $path = '{0}/{1}' -f $path, $Context.Suite.Name
+        }
+
+        if ($null -ne $Context.Tests -and $Context.Tests.Count -gt 0)
+        {
+            $testNames = @($Context.Tests.Name)
+            [System.Array]::Reverse($testNames)
+            foreach ($testName in $testNames)
+            {
+                $path = '{0}/{1}' -f $path, $testName
+            }
         }
     }
 

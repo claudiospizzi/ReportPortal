@@ -54,7 +54,16 @@ function Launch
         # Invoke the fixture without the report portal, only native Pester.
         if ($null -eq $Script:RPContext -or $Script:RPContext.Mode -eq 'None')
         {
-            Pester\Describe -Name 'Launch' -Fixture $Fixture
+            try
+            {
+                $Script:RPContext.PesterPath.Push('Launch')
+
+                Pester\Describe -Name 'Launch' -Fixture $Fixture
+            }
+            finally
+            {
+                $Script:RPContext.PesterPath.Pop() | Out-Null
+            }
             return
         }
 

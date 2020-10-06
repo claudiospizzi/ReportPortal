@@ -56,5 +56,6 @@ function Initialize-RPDslContext
         Suite       = $null
         Tests       = $null #[System.Collections.Stack]::new()
         Suppression = $Suppression
+        PesterPath  = [System.Collections.Stack]::new()
     }
 }
