@@ -148,7 +148,8 @@ function Step
 
                 # For each test, we add the definition of the It block to the
                 # report portal log, so that we easy can troubleshoot the
-                # errors.
+                # errors. The description as info and the code as debug.
+                Add-RPLog -TestItem $step -Level 'Info' -Message (Format-RPDslItComment) -Encoding 'UTF8'
                 Add-RPLog -TestItem $step -Level 'Debug' -Message (Format-RPDslItBlock -Name $pesterTestResult.Name -Test $Test)
 
                 # If the test fails, add this error as log entry to the test step.

@@ -39,7 +39,13 @@ function Add-RPLog
         # Log message.
         [Parameter(Mandatory = $true)]
         [System.String]
-        $Message
+        $Message,
+
+        # Option to set the encoding.
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Default', 'UTF8')]
+        [System.String]
+        $Encoding = 'Default'
     )
 
     $Session = Test-RPSession -Session $Session
@@ -74,5 +80,5 @@ function Add-RPLog
         )
     }
 
-    Invoke-RPRequest -Session $Session -Method 'Post' -Path 'log' -Body $addLogRequest -ErrorAction 'Stop' | Out-Null
+    Invoke-RPRequest -Session $Session -Method 'Post' -Path 'log' -Body $addLogRequest -ContentType $Encoding -ErrorAction 'Stop' | Out-Null
 }

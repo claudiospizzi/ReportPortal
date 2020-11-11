@@ -39,6 +39,12 @@ function Invoke-RPRequest
         [System.Management.Automation.PSObject]
         $Body,
 
+        # Option to set the content type to UTF-8.
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Default', 'UTF8')]
+        [System.String]
+        $ContentType = 'Default',
+
         # Page number if we return paged output.
         [Parameter(Mandatory = $true, ParameterSetName = 'Paged')]
         [System.Int32]
@@ -71,12 +77,19 @@ function Invoke-RPRequest
     if ($PSBoundParameters.ContainsKey('Body'))
     {
         $requestSplat['Body'] = $Body | ConvertTo-Json -Compress
+        Write-Verbose "==>> BODY ==>> $($requestSplat['Body'])"
     }
 
     # If we have the global scope, update the uri
     if ($Scope -eq 'Global')
     {
         $requestSplat['Uri'] = '{0}/api/v1/{1}' -f $Session.Url, $Path
+    }
+
+    # Set the content type to UTF-8.
+    if ($ContentType -eq 'UTF8')
+    {
+        $requestSplat['ContentType'] = 'application/json;charset=UTF-8'
     }
 
     Write-Verbose ('{0} {1}' -f $requestSplat.Method.ToUpper(), $requestSplat.Uri)

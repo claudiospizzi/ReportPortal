@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is mainly based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+* Added: Info log entry with the test step description
+
 ## 1.6.1 - 2020-10-14
 
 * Added: Add suppression parsing for Pester-only mode of a report portal launch

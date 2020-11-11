@@ -5,6 +5,7 @@
 function Format-RPDslItBlock
 {
     [CmdletBinding()]
+    [OutputType([System.String])]
     param
     (
         # The test name.
@@ -58,9 +59,9 @@ function Format-RPDslItBlock
             }
         }
 
-        # Add opening and closing
-        $lines[0]  = "It '{0}' {{{1}" -f $Name, $lines[0]
-        $lines[-1] = '{0}}}' -f $lines[-1].TrimStart()
+        # Add opening and closing including the code block
+        $lines[0]  = "``````powershell`nIt '{0}' {{{1}" -f $Name, $lines[0]
+        $lines[-1] = "{0}}}`n``````" -f $lines[-1].TrimStart()
 
         return ($lines -join "`n")
     }
