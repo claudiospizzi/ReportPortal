@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is mainly based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+* Fixed: Not showing the test step description if test cases are used
+
 ## 1.7.0 - 2020-11-11
 
 * Added: Info log entry with the test step description

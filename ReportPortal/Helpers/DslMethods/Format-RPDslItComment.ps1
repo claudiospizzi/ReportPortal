@@ -16,20 +16,22 @@ function Format-RPDslItComment
     {
         # Use reflection on the call stack of PowerShell to get the comment
         # block above the function itself. This is how the call stack locks
-        # like:
+        # like if we have not test cases:
         # [0]: Format-RPDslItComment   This function itself.
         # [1]: Step                    ReportPortal test step function.
         # [2]: <ScriptBlock>           The actual test script block.
-        # [3]: DescribeImpl            Pester internal function implementing context.
-        # [4]: Context                 Pester internal function wrapping implementation.
-        # [5]: Test                    ReportPortal test function.
+        # And this is how the call stack locks with test cases:
+        # [0]: Format-RPDslItComment   This function itself.
+        # [1]: Step                    ReportPortal test step function.
+        # [2]: Step                    ReportPortal test step function.
+        # [3]: <ScriptBlock>           The actual test script block.
         # ...
         [System.Management.Automation.CallStackFrame[]] $callStack = Get-PSCallStack
 
         # Select the element with id 2, so the element containing the actual
         # test function implementation. It will also point to the script full
         # path and line number of the implementation.
-        $scriptBlockFrame = $callStack | Select-Object -First 1 -Skip 2
+        $scriptBlockFrame = $callStack | Where-Object { $_.Command -eq '<ScriptBlock>' } | Select-Object -First 1 #-Skip 2
         if ($null -eq $scriptBlockFrame)
         {
             throw "Call stack frame number 3 (index 2) not found!"
