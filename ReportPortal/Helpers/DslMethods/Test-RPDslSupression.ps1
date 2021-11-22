@@ -11,7 +11,12 @@ function Test-RPDslSuppression
         # The report portal context.
         [Parameter(Mandatory = $true)]
         [PSTypeName('ReportPortal.Context')]
-        $Context
+        $Context,
+
+        # Optional test case to verify.
+        [Parameter(Mandatory = $false)]
+        [System.Collections.Hashtable]
+        $TestCase = @{}
     )
 
     if ($Context.Mode -eq 'None')
@@ -42,6 +47,13 @@ function Test-RPDslSuppression
                 $path = '{0}/{1}' -f $path, $testName
             }
         }
+    }
+
+    # If we have a test case, try to replace the test case parameter in the
+    # test name with the actual value of the test case.
+    foreach ($testCaseKey in $testCase.Keys)
+    {
+        $path = $path.Replace("<$testCaseKey>", $TestCase[$testCaseKey])
     }
 
     foreach ($currentSuppression in $Context.Suppression)

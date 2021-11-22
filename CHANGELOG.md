@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is mainly based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+* Fixed: The suppression by test name was not working with test cases
+
 ## 1.7.1 - 2020-11-12
 
 * Fixed: Not showing the test step description if test cases are used

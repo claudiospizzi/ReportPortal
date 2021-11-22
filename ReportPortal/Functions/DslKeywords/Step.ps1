@@ -72,11 +72,36 @@ function Step
             {
                 $PSBoundParameters.Remove('Pending') | Out-Null
             }
-            if (Test-RPDslSuppression -Context $Script:RPContext)
+
+            # Decide if the test step contains some test cases.
+            if ($PSBoundParameters.ContainsKey('TestCases') -and $TestCases.Count -gt 0)
             {
-                $PSBoundParameters.Skip = $true
+                # Iterate through the test cases to ensure the test suppression
+                # can be used with the test cases. The Skip parameter must be
+                # stored in a dedicated variable, as we need to respect the
+                # initial step decision of the test.
+                $PSBoundParameters.Remove('TestCases') | Out-Null
+                $PSBoundParameters.Remove('Skip') | Out-Null
+                foreach ($testCase in $TestCases)
+                {
+                    $testCaseSkip = $Skip.IsPresent
+                    if (Test-RPDslSuppression -Context $Script:RPContext -TestCase $testCase)
+                    {
+                        $testCaseSkip = $true
+                    }
+                    Pester\It @PSBoundParameters -Skip:$testCaseSkip -TestCases $testCase
+                }
             }
-            Pester\It @PSBoundParameters
+            else
+            {
+                # No test cases are specified, just invoke it 1:1 after
+                # checking for any suppression.
+                if (Test-RPDslSuppression -Context $Script:RPContext)
+                {
+                    $PSBoundParameters.Skip = $true
+                }
+                Pester\It @PSBoundParameters
+            }
         }
         finally
         {
