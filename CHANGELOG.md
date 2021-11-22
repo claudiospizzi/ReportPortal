@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+* Added: Option to skip not only steps but also tests
 * Fixed: The suppression by test name was not working with test cases
 
 ## 1.7.1 - 2020-11-12

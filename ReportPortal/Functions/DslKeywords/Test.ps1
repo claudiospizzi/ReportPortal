@@ -23,6 +23,11 @@ function Test
         [System.Management.Automation.ScriptBlock]
         $Fixture,
 
+        # Test is skipped.
+        [Parameter(Mandatory = $false)]
+        [Switch]
+        $Skip,
+
         # Tags used as attributes.
         [Parameter(Mandatory = $false)]
         [Alias('Tags')]
@@ -31,6 +36,12 @@ function Test
     )
 
     $ErrorActionPreference = 'Stop'
+
+    # If the test is skipped, directly return as if nothing was called.
+    if ($Skip.IsPresent)
+    {
+        return
+    }
 
     # Invoke the fixture without the report portal, only native Pester.
     if ($null -ne $Script:RPContext -and $Script:RPContext.Mode -eq 'None')
