@@ -1,11 +1,11 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is mainly based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 1.8.0 - 2021-11-23
 
 * Added: Option to skip not only steps but also tests
 * Fixed: The suppression by test name was not working with test cases
