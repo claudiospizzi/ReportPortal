@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is mainly based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+* Added: Report step description now parses cmdlet-based help keywords
+
 ## 1.8.0 - 2021-11-23
 
 * Added: Option to skip not only steps but also tests

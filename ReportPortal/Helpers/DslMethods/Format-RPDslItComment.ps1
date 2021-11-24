@@ -64,6 +64,9 @@ function Format-RPDslItComment
                 # loop. Else append the new text to the comment.
                 $scriptContentLine = $scriptContent[$i].Trim()
                 if ($scriptContentLine -eq '<#') { break }
+                if ($scriptContentLine -in '.SYNOPSIS', '.DESCRIPTION') { $scriptContentLine = "**TEST DESCRIPTION**`n" }
+                if ($scriptContentLine -in '.ROLE', '.COMPONENT')       { $scriptContentLine = "**RESPONSIBLE TEAM**`n" }
+                if ($scriptContentLine -in '.EXAMPLE', '.NOTES')        { $scriptContentLine = "**POSSIBLE SOLUTION**`n" }
                 $comment = "{0}`n{1}" -f $scriptContentLine, $comment
             }
             return $comment
