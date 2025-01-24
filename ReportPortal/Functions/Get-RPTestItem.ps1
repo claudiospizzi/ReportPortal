@@ -42,7 +42,7 @@ function Get-RPTestItem
             Status      = $testItemResult.status
             Path        = $testItemResult.path
             Attributes  = $testItemResult.attributes | ForEach-Object { '{0}:{1}' -f $_.key, $_.value }
-            StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $testItemResult.startTime
+            StartTime   = $testItemResult.startTime
         }
     }
 }

@@ -56,8 +56,8 @@ function Get-RPLaunch
             Type        = 'Launch'
             Number      = $launch.number
             Status      = $launch.status
-            StartTime   = ConvertFrom-ReportPortalDateTime -Timestamp $launch.startTime
-            EndTime     = ConvertFrom-ReportPortalDateTime -Timestamp $launch.endTime
+            StartTime   = $launch.startTime
+            EndTime     = $launch.endTime
         }
     }
 }
