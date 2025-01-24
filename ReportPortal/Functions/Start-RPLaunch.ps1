@@ -4,8 +4,8 @@
 
     .DESCRIPTION
         This command will create a new empty report portal launch. The start
-        time by default is now, but can be overritten. The attributes must be
-        specified by a colon seperator, e.g. 'Key:Value'.
+        time by default is now, but can be overwritten. The attributes must be
+        specified by a colon separator, e.g. 'Key:Value'.
 #>
 function Start-RPLaunch
 {

@@ -3,7 +3,7 @@
         Invoke a report portal request.
 
     .DESCRIPTION
-        This command will invoke a request againts the REST api of the report
+        This command will invoke a request against the REST api of the report
         portal server. The session is used to determine the project and user
         authentication.
 #>
@@ -56,7 +56,7 @@ function Invoke-RPRequest
         $PageSize
     )
 
-    # Basic reqeust
+    # Basic request
     $requestSplat = @{
         Method          = $Method
         Uri             = '{0}/api/v1/{1}/{2}' -f $Session.Url, $Session.Project, $Path
