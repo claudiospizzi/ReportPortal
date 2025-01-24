@@ -1,10 +1,11 @@
-[![PowerShell Gallery - ReportPortal](https://img.shields.io/badge/PowerShell_Gallery-ReportPortal-0072C6.svg)](https://www.powershellgallery.com/packages/ReportPortal)
-[![GitHub - Release](https://img.shields.io/github/release/claudiospizzi/ReportPortal.svg)](https://github.com/claudiospizzi/ReportPortal/releases)
-[![AppVeyor - master](https://img.shields.io/appveyor/ci/claudiospizzi/ReportPortal/master.svg)](https://ci.appveyor.com/project/claudiospizzi/ReportPortal/branch/master)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ReportPortal?label=PowerShell%20Gallery&logo=PowerShell)](https://www.powershellgallery.com/packages/ReportPortal)
+[![Gallery Downloads](https://img.shields.io/powershellgallery/dt/ReportPortal?label=Downloads&logo=PowerShell)](https://www.powershellgallery.com/packages/ReportPortal)
+[![GitHub Release](https://img.shields.io/github/v/release/claudiospizzi/ReportPortal?label=Release&logo=GitHub&sort=semver)](https://github.com/claudiospizzi/ReportPortal/releases)
+[![GitHub CI Build](https://img.shields.io/github/actions/workflow/status/claudiospizzi/ReportPortal/ci.yml?label=CI%20Build&logo=GitHub)](https://github.com/claudiospizzi/ReportPortal/actions/workflows/ci.yml)
 
 # ReportPortal PowerShell Module
 
-PowerShell module to interact with the [Report Portal].
+PowerShell module to interact with the [Report Portal](https://reportportal.io/).
 
 ## Introduction
 
@@ -122,21 +123,22 @@ words are used to test this module:
 
 ## Contribute
 
-Please feel free to contribute to this project. For the best development
-experience, please us the following tools:
+Please feel free to contribute by opening new issues or providing pull requests.
+For the best development experience, open this project as a folder in Visual
+Studio Code and ensure that the PowerShell extension is installed.
 
 * [Visual Studio Code] with the [PowerShell Extension]
-* [Pester], [PSScriptAnalyzer], [InvokeBuild], [InvokeBuildHelper] modules
+* [Pester], [PSScriptAnalyzer], [InvokeBuild] and [InvokeBuildHelper] modules
 
-[PowerShell Gallery]: https://www.powershellgallery.com/packages/ReportPortal
+[PowerShell Gallery]: https://www.powershellgallery.com/packages/InvokeBuildHelper
+[GitHub Releases]: https://github.com/claudiospizzi/PSInvokeBuildHelper/releases
+[Installing a PowerShell Module]: https://msdn.microsoft.com/en-us/library/dd878350
+
 [CHANGELOG.md]: CHANGELOG.md
 
 [Visual Studio Code]: https://code.visualstudio.com/
 [PowerShell Extension]: https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell
-
 [Pester]: https://www.powershellgallery.com/packages/Pester
 [PSScriptAnalyzer]: https://www.powershellgallery.com/packages/PSScriptAnalyzer
 [InvokeBuild]: https://www.powershellgallery.com/packages/InvokeBuild
 [InvokeBuildHelper]: https://www.powershellgallery.com/packages/InvokeBuildHelper
-
-[Report Portal]: http://reportportal.io/
