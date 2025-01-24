@@ -44,7 +44,7 @@ function Connect-RPServer
     Write-Verbose ('Connect to the report portal server {0}#{1}' -f $Url.GetLeftPart('Authority'), $ProjectName)
 
     # Using OAuth to request the access token
-    $uiTokenRequest = @{
+    $tokenRequest = @{
         Method          = 'Post'
         Uri             = '{0}/uat/sso/oauth/token' -f $Url.GetLeftPart('Authority')
         ContentType     = 'application/x-www-form-urlencoded'
@@ -54,25 +54,14 @@ function Connect-RPServer
         Verbose         = $false
         ErrorAction     = 'Stop'
     }
-    $uiTokenResult = Invoke-RestMethod @uiTokenRequest
-
-    # Using the access token to request the api token
-    $apiTokenRequest = @{
-        Method          = 'Get'
-        Uri             = '{0}/uat/sso/me/apitoken' -f $Url.GetLeftPart('Authority')
-        Headers         = @{ Authorization = 'Bearer {0}' -f $uiTokenResult.access_token }
-        UseBasicParsing = $true
-        Verbose         = $false
-        ErrorAction     = 'Stop'
-    }
-    $apiTokenResult = Invoke-RestMethod @apiTokenRequest
+    $tokenResult = Invoke-RestMethod @tokenRequest
 
     # Use the api token to test the project access
     $projectRequest = @{
         Method          = 'Get'
         Uri             = '{0}/api/v1/project/{1}' -f $Url.GetLeftPart('Authority'), $ProjectName
         ContentType     = 'application/json'
-        Headers         = @{ Authorization = 'Bearer {0}' -f $apiTokenResult.access_token }
+        Headers         = @{ Authorization = 'Bearer {0}' -f $tokenResult.access_token }
         UseBasicParsing = $true
         Verbose         = $false
         ErrorAction     = 'Stop'
@@ -84,7 +73,7 @@ function Connect-RPServer
         PSTypeName = 'ReportPortal.Session'
         Url        = $Url.GetLeftPart('Authority')
         Project    = $projectResult.ProjectName
-        Token      = $apiTokenResult.access_token
+        Token      = $tokenResult.access_token
     }
 
     if ($PassThru.IsPresent)

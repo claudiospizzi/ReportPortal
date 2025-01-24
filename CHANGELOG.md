@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+* Fixed: Authentication protocol with new Report Portal version
 * Removed: Remove the Pester v4 DSL keywords, as they are not supported with Pester v5 (BREAKING)
 
 ## 1.9.0 - 2021-11-24
