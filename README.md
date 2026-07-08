@@ -118,8 +118,7 @@ manually on your local system:
 The following minimum requirements are necessary to use this module, or in other
 words are used to test this module:
 
-* Windows PowerShell 5.1
-* Windows Server 2016 / Windows 10
+* Windows 11 / PowerShell 7
 
 ## Contribute
 
