@@ -1,7 +1,7 @@
+[![GitHub Release](https://img.shields.io/github/v/release/claudiospizzi/ReportPortal?label=Release&logo=GitHub&sort=semver)](https://github.com/claudiospizzi/ReportPortal/releases)
+[![GitHub CI Build](https://img.shields.io/github/actions/workflow/status/claudiospizzi/ReportPortal/pwsh-ci.yml?label=CI%20Build&logo=GitHub)](https://github.com/claudiospizzi/ReportPortal/actions/workflows/pwsh-ci.yml)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/ReportPortal?label=PowerShell%20Gallery&logo=PowerShell)](https://www.powershellgallery.com/packages/ReportPortal)
 [![Gallery Downloads](https://img.shields.io/powershellgallery/dt/ReportPortal?label=Downloads&logo=PowerShell)](https://www.powershellgallery.com/packages/ReportPortal)
-[![GitHub Release](https://img.shields.io/github/v/release/claudiospizzi/ReportPortal?label=Release&logo=GitHub&sort=semver)](https://github.com/claudiospizzi/ReportPortal/releases)
-[![GitHub CI Build](https://img.shields.io/github/actions/workflow/status/claudiospizzi/ReportPortal/ci.yml?label=CI%20Build&logo=GitHub)](https://github.com/claudiospizzi/ReportPortal/actions/workflows/ci.yml)
 
 # ReportPortal PowerShell Module
 
@@ -129,9 +129,9 @@ Studio Code and ensure that the PowerShell extension is installed.
 * [Visual Studio Code] with the [PowerShell Extension]
 * [Pester], [PSScriptAnalyzer], [InvokeBuild] and [InvokeBuildHelper] modules
 
-[PowerShell Gallery]: https://www.powershellgallery.com/packages/InvokeBuildHelper
-[GitHub Releases]: https://github.com/claudiospizzi/PSInvokeBuildHelper/releases
-[Installing a PowerShell Module]: https://msdn.microsoft.com/en-us/library/dd878350
+[PowerShell Gallery]: https://www.powershellgallery.com/packages/ReportPortal
+[GitHub Releases]: https://github.com/claudiospizzi/ReportPortal/releases
+[Installing a PowerShell Module]: https://learn.microsoft.com/en-us/powershell/scripting/developer/module/installing-a-powershell-module
 
 [CHANGELOG.md]: CHANGELOG.md
 
