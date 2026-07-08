@@ -31,13 +31,19 @@ function Get-RPTestItem
 
         $testItemResult = Invoke-RPRequest -Session $Session -Method 'Get' -Path "item/$Id" -ErrorAction 'Stop'
 
+        $parentId = $null
+        if ($testItemResult.PSObject.Properties.Name -contains 'parent')
+        {
+            $parentId = $testItemResult.parent
+        }
+
         [PSCustomObject] @{
             PSTypeName  = 'ReportPortal.TestItem'
             Id          = $testItemResult.id
             Guid        = $testItemResult.uuid
             Name        = $testItemResult.name
             Type        = $testItemResult.type
-            ParentId    = $testItemResult.parent
+            ParentId    = $parentId
             LaunchId    = $testItemResult.launchId
             Status      = $testItemResult.status
             Path        = $testItemResult.path

@@ -48,6 +48,14 @@ function Get-RPLaunch
 
     foreach ($launch in $launches)
     {
+        # The end time is not present in the launch object as long as the launch
+        # is running. Return $null in this case.
+        $endTime = $null
+        if ($launch.PSObject.Properties.Name -contains 'endTime')
+        {
+            $endTime = $launch.endTime
+        }
+
         [PSCustomObject] @{
             PSTypeName  = 'ReportPortal.Launch'
             Id          = $launch.id
@@ -57,7 +65,7 @@ function Get-RPLaunch
             Number      = $launch.number
             Status      = $launch.status
             StartTime   = $launch.startTime
-            EndTime     = $launch.endTime
+            EndTime     = $endTime
         }
     }
 }
